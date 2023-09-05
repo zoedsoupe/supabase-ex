@@ -30,3 +30,4 @@ unit-test:
   COPY .env-sample ./
   COPY --dir config ./
   COPY --dir apps ./
+	RUN mix test
