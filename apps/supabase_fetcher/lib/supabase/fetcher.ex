@@ -64,7 +64,11 @@ defmodule Supabase.Fetcher do
         Task.shutdown(task)
       end)
 
-    {status, stream}
+    case {status, stream} do
+      {200, stream} -> {:ok, stream}
+      {s, _} when s >= 400 -> {:error, :not_found}
+      {s, _} when s >= 500 -> {:error, :server_error}
+    end
   end
 
   defp spawn_stream_task(%Finch.Request{} = req, ref, opts) do
@@ -77,10 +81,10 @@ defmodule Supabase.Fetcher do
     end)
   end
 
-  defp receive_stream(ref) do
+  defp receive_stream({ref, _task} = payload) do
     receive do
-      {:chunk, {:data, data}, ^ref} -> {[data], ref}
-      {:done, ^ref} -> {:halt, ref}
+      {:chunk, {:data, data}, ^ref} -> {[data], payload}
+      {:done, ^ref} -> {:halt, payload}
     end
   end
 
@@ -179,15 +183,10 @@ defmodule Supabase.Fetcher do
   def upload(method, url, file, headers \\ []) do
     alias Multipart.Part
 
-    multipart = Multipart.add_part(Multipart.new(), Part.file_field(file, true))
+    multipart = Multipart.add_part(Multipart.new(), Part.file_body(file))
     body_stream = Multipart.body_stream(multipart)
     content_length = Multipart.content_length(multipart)
-
-    content_headers = [
-      {"content-type", "application/json"},
-      {"content-length", to_string(content_length)}
-    ]
-
+    content_headers = [{"content-length", to_string(content_length)}]
     headers = merge_headers(headers, content_headers)
     conn = new_connection(method, url, {:stream, body_stream}, headers)
 
@@ -196,41 +195,15 @@ defmodule Supabase.Fetcher do
     |> format_response()
   end
 
-  @doc """
-  Simple convenience taht given a `Supabase.Connection`, it will return the full URL
-  to your Supabase API. For more information, check the
-  [Supabase.Connection](https://hexdocs.pm/supabase_potion/Supabase.Connection.html)
-  documentation.
-
-  You can also pass the base URL of your Supabase API and the URL you want to request
-  directly.
-
-  ## Examples
-
-       iex> Supabase.Fetcher.get_full_url(conn, "/rest/v1/tables")
-       "https://<your-project>.supabase.co/rest/v1/tables"
-  """
-  def get_full_url(conn, url) when is_atom(conn) do
-    base_url = conn.get_base_url()
-    URI.merge(base_url, url)
-  end
-
-  def get_full_url(base_url, url) when is_binary(base_url) do
-    URI.merge(base_url, url)
+  def get_full_url(base_url, path) do
+    URI.merge(base_url, path)
   end
 
   @doc """
-  Convenience function that given a `Supabase.Connection`, it will return the headers
-  to be used in a request to your Supabase API. For more information, check the
-  [Supabase.Connection](https://hexdocs.pm/supabase_potion/Supabase.Connection.html)
-  documentation.
-
-  Also you can pass the API key and the access token directly.
+  Convenience function that given a `apikey` and a optional ` token`, it will return the headers
+  to be used in a request to your Supabase API.
 
   ## Examples
-
-       iex> Supabase.Fetcher.apply_conn_headers(conn)
-       [{"apikey", "apikey-value"}, {"authorization", "Bearer token-value"}]
 
        iex> Supabase.Fetcher.apply_conn_headers("apikey-value")
        [{"apikey", "apikey-value"}, {"authorization", "Bearer apikey-value"}]
@@ -238,14 +211,6 @@ defmodule Supabase.Fetcher do
        iex> Supabase.Fetcher.apply_conn_headers("apikey-value", "token-value")
        [{"apikey", "apikey-value"}, {"authorization", "Bearer token-value"}]
   """
-  def apply_conn_headers(conn, additional_headers \\ []) when is_atom(conn) do
-    conn_headers = [
-      {"apikey", conn.get_api_key()},
-      {"authorization", conn.get_access_token()}
-    ]
-
-    merge_headers(conn_headers, additional_headers)
-  end
 
   def apply_headers(api_key, token \\ nil, headers \\ []) do
     conn_headers = [
