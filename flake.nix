@@ -9,15 +9,18 @@
   in {
     packages."${system}".supabase-potion = null;
 
-    devShells."${system}".supabase-potion = pkgs.mkShell {
-      name = "supabase-potion";
-      shellHook = "mkdir -p $PWD/.nix-mix";
-      packages = with pkgs;
-        [elixir postgresql_15]
-        ++ lib.optional stdenv.isDarwin [
-          darwin.apple_sdk.frameworks.CoreServices
-          darwin.apple_sdk.frameworks.CoreFoundation
-        ];
+    devShells."${system}" = rec {
+      default = supabase-potion;
+      supabase-potion = pkgs.mkShell {
+        name = "supabase-potion";
+        shellHook = "mkdir -p $PWD/.nix-mix";
+        packages = with pkgs;
+          [elixir postgresql_15]
+          ++ lib.optional stdenv.isDarwin [
+            darwin.apple_sdk.frameworks.CoreServices
+            darwin.apple_sdk.frameworks.CoreFoundation
+          ];
+      };
     };
   };
 }
