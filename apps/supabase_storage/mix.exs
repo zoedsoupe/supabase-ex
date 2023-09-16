@@ -1,9 +1,9 @@
-defmodule Supabase.Fetcher.MixProject do
+defmodule Supabase.Storage.MixProject do
   use Mix.Project
 
   def project do
     [
-      app: :supabase_fetcher,
+      app: :supabase_storage,
       version: "0.1.0",
       build_path: "../../_build",
       config_path: "../../config/config.exs",
@@ -17,15 +17,15 @@ defmodule Supabase.Fetcher.MixProject do
 
   def application do
     [
-      mod: {Supabase.Fetcher.Application, []},
-      extra_applications: [:logger]
+      extra_applications: [:logger],
+      mod: {Supabase.Storage.Application, []}
     ]
   end
 
   defp deps do
     [
-      {:finch, "~> 0.16"},
-      {:jason, "~> 1.4"}
+      {:ecto, "~> 3.10"},
+      {:supabase_fetcher, in_umbrella: true}
     ]
   end
 end
