@@ -506,11 +506,10 @@ defmodule Supabase.Storage do
   @impl true
   def save_object_stream(conn, path, %Bucket{} = bucket, wildcard) do
     with {:ok, stream} <- download_object_lazy(conn, bucket, wildcard) do
-      {:ok, fd} = File.open(Path.expand(path), [:write, :utf8])
+      fs = File.stream!(Path.expand(path))
 
       stream
-      |> Task.async_stream(&IO.binwrite(fd, &1))
-      |> Enum.reverse()
+      |> Stream.into(fs)
       |> Stream.run()
     end
   end

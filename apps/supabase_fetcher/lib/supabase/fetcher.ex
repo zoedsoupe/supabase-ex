@@ -181,11 +181,8 @@ defmodule Supabase.Fetcher do
   """
   @impl true
   def upload(method, url, file, headers \\ []) do
-    alias Multipart.Part
-
-    multipart = Multipart.add_part(Multipart.new(), Part.file_body(file))
-    body_stream = Multipart.body_stream(multipart)
-    content_length = Multipart.content_length(multipart)
+    body_stream = File.stream!(file, [{:read_ahead, 4096}], 1024)
+    %File.Stat{size: content_length} = File.stat!(file)
     content_headers = [{"content-length", to_string(content_length)}]
     headers = merge_headers(headers, content_headers)
     conn = new_connection(method, url, {:stream, body_stream}, headers)

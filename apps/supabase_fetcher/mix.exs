@@ -25,8 +25,7 @@ defmodule Supabase.Fetcher.MixProject do
   defp deps do
     [
       {:finch, "~> 0.16"},
-      {:jason, "~> 1.4"},
-      {:multipart, "~> 0.1.0"}
+      {:jason, "~> 1.4"}
     ]
   end
 end
