@@ -1,5 +1,43 @@
 defmodule Supabase.Storage do
-  @moduledoc "Entrypoint for the Storage Client"
+  @moduledoc """
+  Supabase.Storage Elixir Package
+
+  This module provides integration with the Supabase Storage API, enabling developers
+  to perform a multitude of operations related to buckets and objects with ease.
+
+  ## Features
+
+  1. **Bucket Operations**: Methods that allow the creation, listing, and removal of buckets.
+  2. **Object Operations**: Functions designed to upload, download, retrieve object information,
+     and perform move, copy, and remove actions on objects.
+
+  ## Usage
+
+  You can start by creating or managing buckets:
+
+      Supabase.Storage.create_bucket(conn, "my_new_bucket")
+
+  Once a bucket is set up, objects within the bucket can be managed:
+
+      Supabase.Storage.upload_object(conn, "my_bucket", "path/on/server.png", "path/on/local.png")
+
+  ## Examples
+
+  Here are some basic examples:
+
+      # Removing an object
+      Supabase.Storage.remove_object(conn, "my_bucket", "path/on/server.png")
+
+      # Moving an object
+      Supabase.Storage.move_object(conn, "my_bucket", "path/on/server1.png", "path/on/server2.png")
+
+  Ensure to refer to method-specific documentation for detailed examples and explanations.
+
+  ## Permissions
+
+  Do remember to check and set the appropriate permissions in Supabase to make sure that the
+  operations can be performed without any hitches.
+  """
 
   import Supabase.Connection
 

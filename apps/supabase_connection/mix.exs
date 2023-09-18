@@ -1,12 +1,12 @@
-defmodule Supabase.Storage.MixProject do
+defmodule Supabase.Connection.MixProject do
   use Mix.Project
 
   @version "0.1.0"
-  @source_url "https://github.com/zoedsoupe/supabase/tree/main/apps/supabase_storage"
+  @source_url "https://github.com/zoedsoupe/supabase/tree/main/apps/supabase_connection"
 
   def project do
     [
-      app: :supabase_storage,
+      app: :supabase_connection,
       version: @version,
       build_path: "../../_build",
       config_path: "../../config/config.exs",
@@ -21,42 +21,33 @@ defmodule Supabase.Storage.MixProject do
     ]
   end
 
+  # Run "mix help compile.app" to learn about applications.
   def application do
     [
       extra_applications: [:logger],
-      mod: {Supabase.Storage.Application, []}
+      mod: {Supabase.Connection.Application, []}
     ]
   end
 
   defp deps do
     [
       {:ecto, "~> 3.10"},
+      if(Mix.env() == :prod,
+        do: {:supabase_types, "~> 0.1"},
+        else: {:supabase_types, in_umbrella: true}
+      ),
       {:ex_doc, ">= 0.0.0", runtime: false}
-    ] ++ child_deps(Mix.env())
-  end
-
-  defp child_deps(:prod) do
-    [
-      {:supabase_fetcher, "~> 0.1"},
-      {:supabase_connection, "~> 0.1"}
-    ]
-  end
-
-  defp child_deps(_) do
-    [
-      {:supabase_fetcher, in_umbrella: true},
-      {:supabase_connection, in_umbrella: true}
     ]
   end
 
   defp package do
     %{
-      name: "supabase_storage",
+      name: "supabase_connection",
       licenses: ["MIT"],
       contributors: ["zoedsoupe"],
       links: %{
         "GitHub" => @source_url,
-        "Docs" => "https://hexdocs.pm/supabase_storage"
+        "Docs" => "https://hexdocs.pm/supabase_connection"
       },
       files: ~w[lib mix.exs README.md ../../LICENSE]
     }
@@ -64,14 +55,14 @@ defmodule Supabase.Storage.MixProject do
 
   defp docs do
     [
-      main: "Supabase.Storage",
+      main: "Supabase.Connection",
       extras: ["README.md"]
     ]
   end
 
   defp description do
     """
-    High level Elixir client for Supabase Storage.
+    Defines a Supabase Connection for usage in the Supabase Potion.
     """
   end
 end

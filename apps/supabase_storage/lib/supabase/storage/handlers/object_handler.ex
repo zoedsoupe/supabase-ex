@@ -1,5 +1,21 @@
 defmodule Supabase.Storage.ObjectHandler do
-  @moduledoc false
+  @moduledoc """
+  A low-level API interface for managing objects within a Supabase bucket.
+
+  ## Responsibilities
+
+  - **File Management**: Create, move, copy, and get information about files in a bucket.
+  - **Object Listing**: List objects based on certain criteria, like a prefix.
+  - **Object Removal**: Delete specific objects or a list of objects.
+  - **URL Management**: Generate signed URLs for granting temporary access to objects.
+  - **Content Access**: Retrieve the content of an object or stream it.
+
+  ## Usage Warning
+
+  This module is meant for internal use or for developers requiring more control over object management in Supabase. In general, users should work with the higher-level Supabase.Storage API when possible, as it may offer better abstractions and safety mechanisms.
+
+  Directly interfacing with this module bypasses any additional logic the main API might provide. Use it with caution and ensure you understand its operations.
+  """
 
   alias Supabase.Connection, as: Conn
   alias Supabase.Fetcher

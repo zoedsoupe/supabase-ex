@@ -1,18 +1,29 @@
 defmodule Supabase.Fetcher do
   @moduledoc """
-  Entrypoint for the Supabase HTTP Client.
+   A fundamental HTTP client for interfacing directly with Supabase services.
 
-  Generally you would use some higher level APIs that match
-  Supabase APIs, like:
+  `Supabase.Fetcher` provides the groundwork for sending HTTP requests to the Supabase infrastructure. This includes utilities for various HTTP methods such as GET, POST, PUT, DELETE, and functions to simplify the process of streaming data or uploading files.
+
+  ## Key Features
+
+  - **Low-level HTTP Interactions**: This module allows for raw HTTP requests to any URL, simplifying interactions with web resources.
+  - **Data Streaming**: Efficiently stream large data payloads, such as downloading files.
+  - **Request Customization**: Extensive header customization and utility functions for constructing requests tailored to your requirements.
+  - **Response Parsing**: Automatically converts JSON responses into Elixir maps and handles various response scenarios.
+
+  ## Recommended Usage
+
+  While `Supabase.Fetcher` is versatile and comprehensive, it operates at a very granular level. For most applications and needs, leveraging higher-level APIs that correspond to specific Supabase services is advisable:
 
   - [supabase-storage](https://github.com/zoedsoupe/supabase/tree/main/apps/supabase_storage)
 
-  Or even if you want to build a complete integraiton with Supabase APIs, you can also
-  install and configure the all-in-one package [supabase-potion](https://github.com/zoedsoupe/supabase).
+  For those seeking a more comprehensive integration with the entirety of Supabase's offerings, the [supabase-potion](https://github.com/zoedsoupe/supabase) package is available. This package provides an all-encompassing interface, streamlining your Supabase interactions.
 
-  But if you want to use this package directly, as a low-level HTTP client, if higher levels
-  packages are missing some feature, or if you want to build your own integration with Supabase,
-  you can safely use this package.
+  ## Disclaimer
+
+  If your aim is to directly harness this module as a low-level HTTP client, due to missing features in other packages or a desire to craft a unique Supabase integration, you can certainly do so. However, always keep in mind that `Supabase.Potion` and other Supabase-oriented packages might offer better abstractions and ease-of-use.
+
+  Use `Supabase.Fetcher` with a clear understanding of its features and operations.
   """
 
   @behaviour Supabase.FetcherBehaviour

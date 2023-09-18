@@ -1,5 +1,58 @@
 defmodule Supabase.Storage.Bucket do
-  @moduledoc "Represents a Bucket on a Supabase Storage"
+  @moduledoc """
+  Represents a Bucket on Supabase Storage.
+
+  This module defines the structure and operations related to a storage bucket on Supabase.
+
+  ## Structure
+
+  A `Bucket` consists of:
+
+  - `id`: The unique identifier for the bucket.
+  - `name`: The display name of the bucket.
+  - `owner`: The owner of the bucket.
+  - `file_size_limit`: The maximum file size allowed in the bucket (in bytes). Can be `nil` for no limit.
+  - `allowed_mime_types`: List of MIME types permitted in this bucket. Can be `nil` for no restrictions.
+  - `created_at`: Timestamp indicating when the bucket was created.
+  - `updated_at`: Timestamp indicating the last update to the bucket.
+  - `public`: Boolean flag determining if the bucket is publicly accessible or not.
+
+  ## Functions
+
+  - `parse!/1`: Parses and returns a bucket structure.
+  - `create_changeset/1`: Generates a changeset for creating a bucket.
+  - `update_changeset/2`: Generates a changeset for updating an existing bucket.
+
+  ## Examples
+
+  ### Parsing a bucket
+
+      bucket_attrs = %{
+        id: "bucket_id",
+        name: "My Bucket",
+        ...
+      }
+      Supabase.Storage.Bucket.parse!(bucket_attrs)
+
+  ### Creating a bucket changeset
+
+      new_bucket_attrs = %{
+        id: "new_bucket_id",
+        ...
+      }
+      Supabase.Storage.Bucket.create_changeset(new_bucket_attrs)
+
+  ### Updating a bucket
+
+      existing_bucket = %Supabase.Storage.Bucket{
+        id: "existing_bucket_id",
+        ...
+      }
+      updated_attrs = %{
+        public: true
+      }
+      Supabase.Storage.Bucket.update_changeset(existing_bucket, updated_attrs)
+  """
 
   use Ecto.Schema
 
