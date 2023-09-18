@@ -1,5 +1,26 @@
 defmodule Supabase.Storage.BucketHandler do
-  @moduledoc false
+  @moduledoc """
+  Provides low-level API functions for managing Supabase Storage buckets.
+
+  The `BucketHandler` module offers a collection of functions that directly interact with the Supabase Storage API for managing buckets. This module works closely with the `Supabase.Fetcher` for sending HTTP requests and the `Supabase.Storage.Cache` for caching bucket information.
+
+  ## Features
+
+  - **Bucket Listing**: Fetch a list of all the buckets available in the storage.
+  - **Bucket Retrieval**: Retrieve detailed information about a specific bucket.
+  - **Bucket Creation**: Create a new bucket with specified attributes.
+  - **Bucket Update**: Modify the attributes of an existing bucket.
+  - **Bucket Emptying**: Empty the contents of a bucket without deleting the bucket itself.
+  - **Bucket Deletion**: Permanently remove a bucket and its contents.
+
+  ## Caution
+
+  This module provides a low-level interface to Supabase Storage buckets and is designed for internal use by the `Supabase.Storage` module. Direct use is discouraged unless you need to perform custom or unsupported actions that are not available through the higher-level API. Incorrect use can lead to unexpected results or data loss.
+
+  ## Implementation Details
+
+  All functions within the module expect a base URL, API key, and access token as their initial arguments, followed by any additional arguments required for the specific operation. Responses are usually in the form of `{:ok, result}` or `{:error, message}` tuples.
+  """
 
   alias Supabase.Connection, as: Conn
   alias Supabase.Fetcher

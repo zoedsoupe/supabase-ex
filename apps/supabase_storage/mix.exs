@@ -31,7 +31,7 @@ defmodule Supabase.Storage.MixProject do
   defp deps do
     [
       {:ecto, "~> 3.10"},
-      {:ex_doc, ">= 0.0.0", only: :dev, runtime: false}
+      {:ex_doc, ">= 0.0.0", runtime: false}
     ] ++ child_deps(Mix.env())
   end
 
@@ -64,7 +64,7 @@ defmodule Supabase.Storage.MixProject do
 
   defp docs do
     [
-      main: "Supabase Storage",
+      main: "Supabase.Storage",
       extras: ["README.md"]
     ]
   end

@@ -32,7 +32,7 @@ defmodule Supabase.Fetcher.MixProject do
     [
       {:finch, "~> 0.16"},
       {:jason, "~> 1.4"},
-      {:ex_doc, ">= 0.0.0", only: :dev, runtime: false}
+      {:ex_doc, ">= 0.0.0", runtime: false}
     ]
   end
 
@@ -51,7 +51,7 @@ defmodule Supabase.Fetcher.MixProject do
 
   defp docs do
     [
-      main: "Supabase Fetcher",
+      main: "Supabase.Fetcher",
       extras: ["README.md"]
     ]
   end

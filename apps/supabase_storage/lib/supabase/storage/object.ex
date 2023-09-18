@@ -1,5 +1,39 @@
 defmodule Supabase.Storage.Object do
-  @moduledoc "Represents a Object on a Supabase Storage"
+  @moduledoc """
+  Represents an Object within a Supabase Storage Bucket.
+
+  This module encapsulates the structure and operations related to an object or file stored within a Supabase Storage bucket.
+
+  ## Structure
+
+  An `Object` has the following attributes:
+
+  - `id`: The unique identifier for the object.
+  - `path`: The path to the object within its storage bucket.
+  - `bucket_id`: The ID of the bucket that houses this object.
+  - `name`: The name or title of the object.
+  - `owner`: The owner or uploader of the object.
+  - `metadata`: A map containing meta-information about the object (e.g., file type, size).
+  - `created_at`: Timestamp indicating when the object was first uploaded or created.
+  - `updated_at`: Timestamp indicating the last time the object was updated.
+  - `last_accessed_at`: Timestamp of when the object was last accessed or retrieved.
+
+  ## Functions
+
+  - `parse!/1`: Accepts a map of attributes and constructs a structured `Object`.
+
+  ## Examples
+
+  ### Parsing an object
+
+      object_attrs = %{
+        id: "obj_id",
+        path: "/folder/my_file.txt",
+        bucket_id: "bucket_123",
+        ...
+      }
+      Supabase.Storage.Object.parse!(object_attrs)
+  """
 
   use Ecto.Schema
 

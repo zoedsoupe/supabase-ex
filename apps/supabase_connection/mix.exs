@@ -36,7 +36,7 @@ defmodule Supabase.Connection.MixProject do
         do: {:supabase_types, "~> 0.1"},
         else: {:supabase_types, in_umbrella: true}
       ),
-      {:ex_doc, ">= 0.0.0", only: :dev, runtime: false}
+      {:ex_doc, ">= 0.0.0", runtime: false}
     ]
   end
 
@@ -55,7 +55,7 @@ defmodule Supabase.Connection.MixProject do
 
   defp docs do
     [
-      main: "Supabase Connection",
+      main: "Supabase.Connection",
       extras: ["README.md"]
     ]
   end

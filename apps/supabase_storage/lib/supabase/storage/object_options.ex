@@ -1,5 +1,32 @@
 defmodule Supabase.Storage.ObjectOptions do
-  @moduledoc false
+  @moduledoc """
+  Represents the configurable options for an Object within Supabase Storage.
+
+  This module encapsulates options that can be set or modified for a storage object. These options help in controlling behavior such as caching, content type, and whether to upsert an object.
+
+  ## Structure
+
+  An `ObjectOptions` consists of the following attributes:
+
+  - `cache_control`: Specifies directives for caching mechanisms in both requests and responses. Default is `"3600"`.
+  - `content_type`: Specifies the media type of the resource or data. Default is `"text/plain;charset=UTF-8"`.
+  - `upsert`: A boolean that, when set to `true`, will insert the object if it does not exist, or update it if it does. Default is `true`.
+
+  ## Functions
+
+  - `parse!/1`: Accepts a map of attributes and constructs a structured `ObjectOptions`.
+
+  ## Examples
+
+  ### Parsing object options
+
+      options_attrs = %{
+        cache_control: "no-cache",
+        content_type: "application/json",
+        upsert: false
+      }
+      Supabase.Storage.ObjectOptions.parse!(options_attrs)
+  """
 
   use Ecto.Schema
 

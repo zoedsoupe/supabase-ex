@@ -1,5 +1,38 @@
 defmodule Supabase.Storage.Cache do
-  @moduledoc false
+  @moduledoc """
+  Provides caching mechanisms for Supabase Storage Buckets.
+
+  This module acts as a GenServer that offers caching capabilities, especially for bucket-related operations in Supabase Storage. The caching is backed by the `:ets` (Erlang Term Storage) to provide in-memory storage and fast retrieval of cached data.
+
+  ## Features
+
+  - **Bucket Caching**: Store and retrieve buckets by their unique identifier.
+  - **Cache Flushing**: Clear the cache when necessary.
+  - **Configurable Cache Size**: Limit the number of items that can be stored in the cache.
+
+  ## Usage
+
+  ### Starting the Cache Server
+
+      Supabase.Storage.Cache.start_link(%{cache_max_size: 200})
+
+  ### Caching Buckets
+
+      buckets = [%{id: "bucket_1", ...}, %{id: "bucket_2", ...}]
+      Supabase.Storage.Cache.cache_buckets(buckets)
+
+  ### Retrieving a Cached Bucket by ID
+
+      Supabase.Storage.Cache.find_bucket_by_id("bucket_1")
+
+  ### Clearing the Cache
+
+      Supabase.Storage.Cache.flush()
+
+  ## Implementation Details
+
+  The cache uses the `:ets` module for in-memory storage of buckets. The number of buckets cached is controlled by the `:cache_max_size` option (default: 100). When the cache is close to exceeding its maximum size, older entries are removed to accommodate new ones.
+  """
 
   use GenServer
 

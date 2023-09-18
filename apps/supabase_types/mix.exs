@@ -30,7 +30,7 @@ defmodule Supabase.Types.MixProject do
   defp deps do
     [
       {:ecto, "~> 3.10"},
-      {:ex_doc, ">= 0.0.0", only: :dev, runtime: false}
+      {:ex_doc, ">= 0.0.0", runtime: false}
     ]
   end
 
@@ -49,7 +49,6 @@ defmodule Supabase.Types.MixProject do
 
   defp docs do
     [
-      main: "Supabase Types",
       extras: ["README.md"]
     ]
   end
