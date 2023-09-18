@@ -1,5 +1,30 @@
 defmodule Supabase.ClientOptions do
-  @moduledoc false
+  @moduledoc """
+  A simple changeset that validates and parses client options.
+  Usually this is used internally by `Supabase` module, but can be used to
+  validate and parse client options manually using `parse/1` function.
+
+  ## Options
+
+  - `:client_name` - The name of the client. This is used to identify the
+  client in the connection pool. This option is required.
+  - `:db` - The database options. This is used to configure the database
+  connection. This option is required.
+    - `:schema` - The default schema to use. Defaults to `"public"`.
+  - `:global` - Global options. This is used to configure global options
+  that will be used on each request. This option is required.
+    - `:headers` - Additional headers to use on each request.
+  - `:auth` - Authentication options. This is used to configure authentication
+  options. This option is required.
+    - `:auto_refresh_token` - Automatically refresh the token when it expires.
+    Defaults to `true`.
+    - `:debug` - Enable debug mode. Defaults to `false`.
+    - `:detect_session_in_url` - Detect session in URL. Defaults to `true`.
+    - `:flow_type` - Authentication flow type. Defaults to `"web"`.
+    - `:persist_session` - Persist session. Defaults to `true`.
+    - `:storage` - Storage type.
+    - `:storage_key` - Storage key.
+  """
 
   import Ecto.Changeset
 

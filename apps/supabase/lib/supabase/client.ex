@@ -1,5 +1,67 @@
 defmodule Supabase.Client do
-  @moduledoc false
+  @moduledoc """
+  A client for interacting with Supabase. This module is responsible for
+  managing the connection pool and the connection options.
+
+  ## Usage
+
+  Usually you don't need to use this module directly, instead you should
+  use the `Supabase` module, available on `:supabase_potion` application.
+
+  However, if you want to manage clients manually, you can leverage this
+  module to start and stop clients dynamically. To start a single
+  client manually, you need to add it to your supervision tree:
+
+      defmodule MyApp.Application do
+        use Application
+
+        def start(_type, _args) do
+          children = [
+            {Supabase.Client, name: :supabase, client_info: %{connections: %{default: :supabase}}}
+          ]
+
+          opts = [strategy: :one_for_one, name: MyApp.Supervisor]
+          Supervisor.start_link(children, opts)
+        end
+      end
+
+  Notice that starting a Client in this way, Client options will not be
+  validated, so you need to make sure that the options are correct. Otherwise
+  application will crash.
+
+  ## Examples
+
+      iex> Supabase.Client.start_link(name: :supabase, client_info: client_info)
+      {:ok, #PID<0.123.0>}
+
+      iex> Supabase.Client.retrieve_client(:supabase)
+      %Supabase.Client{
+        name: :supabase,
+        connections: %{
+          default: :supabase
+        },
+        db: %Supabase.Client.Db{
+          schema: "public"
+        },
+        global: %Supabase.Client.Global{
+          headers: %{}
+        },
+        auth: %Supabase.Client.Auth{
+          auto_refresh_token: true,
+          debug: false,
+          detect_session_in_url: true,
+          flow_type: nil,
+          persist_session: true,
+          storage: nil,
+          storage_key: nil
+        }
+      }
+
+      iex> Supabase.Client.retrieve_connections(:supabase)
+      %{
+        default: :supabase
+      }
+  """
 
   use Agent
   use Ecto.Schema

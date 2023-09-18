@@ -31,7 +31,7 @@ defmodule Supabase.MixProject do
   defp deps do
     [
       {:ecto, "~> 3.10"},
-      {:ex_doc, ">= 0.0.0", only: :dev, runtime: false}
+      {:ex_doc, ">= 0.0.0", runtime: false}
     ] ++ child_deps(Mix.env())
   end
 
@@ -62,13 +62,14 @@ defmodule Supabase.MixProject do
         "GitHub" => @source_url,
         "Docs" => "https://hexdocs.pm/supabase_potion"
       },
-      files: ~w[lib mix.exs README.md ../../LICENSE]
+      files:
+        ~w[lib mix.exs README.md ../../LICENSE ../supabase_storage/doc ../supabase_fetcher/doc ../supabase_connection/doc]
     }
   end
 
   defp docs do
     [
-      main: "Supabase Potion",
+      main: "Supabase",
       extras: ["README.md"]
     ]
   end
