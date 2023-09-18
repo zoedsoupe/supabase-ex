@@ -8,7 +8,6 @@ defmodule Supabase.Storage.Application do
     children =
       if start_cache?() do
         [
-          {Supabase.Connection, conn_info: conn_info(), name: Supabase.Connection},
           {Supabase.Storage.Cache, cache_max_size: cache_max_size()},
           {Supabase.Storage.CacheReloader, reload_interval: reload_interval()}
         ]
@@ -30,12 +29,5 @@ defmodule Supabase.Storage.Application do
 
   defp reload_interval do
     Application.get_env(:supabase_storage, :reload_interval)
-  end
-
-  defp conn_info do
-    %{
-      base_url: System.get_env("SUPABASE_URL"),
-      api_key: System.get_env("SUPABASE_KEY")
-    }
   end
 end
