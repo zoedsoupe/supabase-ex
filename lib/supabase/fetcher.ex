@@ -30,7 +30,7 @@ defmodule Supabase.Fetcher do
 
   @spec version :: String.t()
   def version do
-    {:ok, vsn} = :application.get_key(:supabase_fetcher, :vsn)
+    {:ok, vsn} = :application.get_key(:supabase, :vsn)
     List.to_string(vsn)
   end
 

@@ -197,7 +197,7 @@ defmodule Supabase.Storage.ObjectHandler do
   end
 
   @spec get(Conn.base_url(), Conn.api_key(), Conn.access_token(), bucket_name, object_path) ::
-          {:ok, String.t()} | {:error, String.t()}
+          {:ok, binary} | {:error, String.t()}
   def get(base_url, api_key, token, bucket_name, wildcard) do
     url = Fetcher.get_full_url(base_url, Endpoints.file_download(bucket_name, wildcard))
     headers = Fetcher.apply_headers(api_key, token)
@@ -210,6 +210,14 @@ defmodule Supabase.Storage.ObjectHandler do
     end
   end
 
+  @spec get_lazy(
+          Conn.base_url(),
+          Conn.api_key(),
+          Conn.access_token(),
+          bucket_name,
+          wildcard
+        ) ::
+          {:ok, Stream.t()} | {:error, atom}
   def get_lazy(base_url, api_key, token, bucket_name, wildcard) do
     url = Fetcher.get_full_url(base_url, Endpoints.file_download(bucket_name, wildcard))
     headers = Fetcher.apply_headers(api_key, token)

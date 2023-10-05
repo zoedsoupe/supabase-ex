@@ -6,9 +6,9 @@ defmodule Supabase.StorageBehaviour do
   alias Supabase.Storage.ObjectOptions, as: Opts
   alias Supabase.Storage.SearchOptions, as: Search
 
-  @type conn :: atom | pid
+  @type conn :: atom
   @type reason :: String.t() | atom
-  @type result(a) :: {:ok, a} | {:error, reason}
+  @type result(a) :: {:ok, a} | {:error, reason} | {:error, :invalid_client}
 
   @callback list_buckets(conn) :: result([Bucket.t()])
   @callback retrieve_bucket_info(conn, id) :: result(Bucket.t())
@@ -31,10 +31,12 @@ defmodule Supabase.StorageBehaviour do
             when wildcard: String.t()
   @callback download_object_lazy(conn, Bucket.t(), wildcard) :: result(Stream.t())
             when wildcard: String.t()
-  @callback save_object(conn, dest, Bucket.t(), wildcard) :: :ok | {:error, atom}
+  @callback save_object(conn, dest, Bucket.t(), wildcard) ::
+              :ok | {:error, atom} | {:error, :invalid_client}
             when wildcard: String.t(),
                  dest: Path.t()
-  @callback save_object_stream(conn, dest, Bucket.t(), wildcard) :: :ok | {:error, atom}
+  @callback save_object_stream(conn, dest, Bucket.t(), wildcard) ::
+              :ok | {:error, atom} | {:error, :invalid_client}
             when wildcard: String.t(),
                  dest: Path.t()
   @callback create_signed_url(conn, Bucket.t(), String.t(), integer) :: result(String.t())

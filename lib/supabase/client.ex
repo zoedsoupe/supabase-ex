@@ -75,6 +75,8 @@ defmodule Supabase.Client do
 
   alias Supabase.ClientRegistry
 
+  defguard is_client(v) when is_atom(v) or is_pid(v)
+
   @type t :: %__MODULE__{
           name: atom,
           conn: Conn.t(),
@@ -134,17 +136,21 @@ defmodule Supabase.Client do
   defp maybe_parse(%__MODULE__{} = client), do: client
   defp maybe_parse(params), do: parse!(params)
 
-  @spec retrieve_client(name) :: Supabase.Client.t()
-        when name: atom
-  def retrieve_client(name) do
+  @spec retrieve_client(name) :: Supabase.Client.t() | nil
+        when name: atom | pid
+  def retrieve_client(name) when is_atom(name) do
     pid = ClientRegistry.lookup(name)
     pid && Agent.get(pid, & &1)
   end
 
-  @spec retrieve_connection(name) :: Conn.t()
-        when name: :atom
-  def retrieve_connection(name) do
+  def retrieve_client(pid) when is_pid(pid), do: Agent.get(pid, & &1)
+
+  @spec retrieve_connection(name) :: Conn.t() | nil
+        when name: atom | pid
+  def retrieve_connection(name) when is_atom(name) do
     pid = ClientRegistry.lookup(name)
     pid && Agent.get(pid, &Map.get(&1, :conn))
   end
+
+  def retrieve_connection(pid) when is_pid(pid), do: Agent.get(pid, &Map.get(&1, :conn))
 end
