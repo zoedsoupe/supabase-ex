@@ -60,9 +60,9 @@ defmodule Supabase do
       iex> Supabase.Client.start_link(name: :my_client, client_info: %{db: %{schema: "public"}})
       {:ok, #PID<0.123.0>}
 
-  Notice that this way to start a Client is not recommended, since you will need to manage the `Supabase.Client` manually. Instead, you can use `Supabase.init_client/1`, passing the Client options:
+  Notice that this way to start a Client is not recommended, since you will need to manage the `Supabase.Client` manually. Instead, you can use `Supabase.init_client!/1`, passing the Client options:
 
-      iex> Supabase.Client.init_client(%{conn: %{base_url: "<supa-url>", api_key: "<supa-key>"}})
+      iex> Supabase.Client.init_client!(%{conn: %{base_url: "<supa-url>", api_key: "<supa-key>"}})
       {:ok, #PID<0.123.0>}
 
   ## Acknowledgements
@@ -106,6 +106,8 @@ defmodule Supabase do
   alias Supabase.ClientRegistry
   alias Supabase.ClientSupervisor
 
+  alias Supabase.MissingSupabaseConfig
+
   @typep changeset :: Ecto.Changeset.t()
 
   @spec init_client(params) :: {:ok, pid} | {:error, changeset}
@@ -116,5 +118,24 @@ defmodule Supabase do
       client_opts = [name: name, client_info: opts]
       ClientSupervisor.start_child({Client, client_opts})
     end
+  end
+
+  def init_client!(%{} = opts) do
+    conn = Map.get(opts, :conn, %{})
+    opts = maybe_merge_config_from_application(conn, opts)
+
+    case init_client(opts) do
+      {:ok, pid} -> pid
+      {:error, changeset} -> raise Ecto.InvalidChangesetError, changeset: changeset, action: :init
+    end
+  end
+
+  defp maybe_merge_config_from_application(%{base_url: _, api_key: _}, opts), do: opts
+
+  defp maybe_merge_config_from_application(%{}, opts) do
+    base_url = Application.get_env(:supabase, :supabase_url) || raise MissingSupabaseConfig, :url
+    api_key = Application.get_env(:supabase, :supabase_key) || raise MissingSupabaseConfig, :key
+
+    Map.put(opts, :conn, %{base_url: base_url, api_key: api_key})
   end
 end

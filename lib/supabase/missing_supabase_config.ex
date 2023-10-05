@@ -9,12 +9,21 @@ defmodule Supabase.MissingSupabaseConfig do
 
         import Config
 
-        config :supabase_fetch,
+        config :supabase,
           supabase_url: System.fetch_env!("SUPABASE_BASE_URL"),
           supabase_key: System.fetch_env!("SUPABASE_API_KEY"),
 
     Remember to set the environment variables SUPABASE_BASE_URL and SUPABASE_API_KEY
     if you choose this option. Otherwise you can pass the values directly to the config file.
+
+    Alternatively you can pass the values directly to the `Supabase.Client.init_client!/1` function:
+
+        iex> Supabase.init_client!(%{
+              conn: %{
+                base_url: System.fetch_env!("SUPABASE_BASE_URL"),
+                api_key: System.fetch_env!("SUPABASE_API_KEY")
+              }
+            })
 
     #{if config == :key, do: missing_key_config_walktrough(), else: missing_url_config_walktrough()}
     """
