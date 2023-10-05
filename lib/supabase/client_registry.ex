@@ -1,5 +1,17 @@
 defmodule Supabase.ClientRegistry do
-  @moduledoc false
+  @moduledoc """
+  Registry for the Supabase multiple Clients. This registry is used to
+  register and lookup the Supabase Clients defined by the user.
+
+  This Registry is used by the `Supabase.ClientSupervisor` to register and
+  any `Supabase.Client` that is defined. That way, the `Supabase.ClientSupervisor`
+  can lookup the `Supabase.Client` by name and start it if it is not running.
+
+  ## Usage
+
+  This Registry is used internally by the `Supabase.Application` and should
+  start automatically when the application starts.
+  """
 
   def start_link(_) do
     Registry.start_link(keys: :unique, name: __MODULE__)

@@ -1,5 +1,12 @@
 defmodule Supabase.Client.Global do
-  @moduledoc false
+  @moduledoc """
+  Global configuration schema. This schema is used to configure the global
+  options. This schema is embedded in the `Supabase.Client` schema.
+
+  ## Fields
+
+  - `:headers` - The default headers to use in any Supabase request. Defaults to `%{}`.
+  """
 
   use Ecto.Schema
   import Ecto.Changeset

@@ -15,13 +15,11 @@ defmodule Supabase.Fetcher do
 
   While `Supabase.Fetcher` is versatile and comprehensive, it operates at a very granular level. For most applications and needs, leveraging higher-level APIs that correspond to specific Supabase services is advisable:
 
-  - [supabase-storage](https://github.com/zoedsoupe/supabase/tree/main/apps/supabase_storage)
-
-  For those seeking a more comprehensive integration with the entirety of Supabase's offerings, the [supabase-potion](https://github.com/zoedsoupe/supabase) package is available. This package provides an all-encompassing interface, streamlining your Supabase interactions.
+  - `Supabase.Storage` - API to interact directly with buckets and objects in Supabase Storage.
 
   ## Disclaimer
 
-  If your aim is to directly harness this module as a low-level HTTP client, due to missing features in other packages or a desire to craft a unique Supabase integration, you can certainly do so. However, always keep in mind that `Supabase.Potion` and other Supabase-oriented packages might offer better abstractions and ease-of-use.
+  If your aim is to directly harness this module as a low-level HTTP client, due to missing features in other packages or a desire to craft a unique Supabase integration, you can certainly do so. However, always keep in mind that `Supabase.Storage` and other Supabase-oriented packages might offer better abstractions and ease-of-use.
 
   Use `Supabase.Fetcher` with a clear understanding of its features and operations.
   """

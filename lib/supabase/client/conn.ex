@@ -1,5 +1,17 @@
 defmodule Supabase.Client.Conn do
-  @moduledoc false
+  @moduledoc """
+  Conn configuration for Supabase Client. This schema is used to configure
+  the connection options. This schema is embedded in the `Supabase.Client`.
+
+  ## Fields
+
+  - `:base_url` - The Supabase Project URL to use. This option is required.
+  - `:api_key` - The Supabase ProjectAPI Key to use. This option is required.
+  - `:access_token` - The access token to use. Default to the API key.
+
+  For more information about the connection options, see the documentation for
+  the [client](https://supabase.com/docs/reference/javascript/initializing).
+  """
 
   use Ecto.Schema
   import Ecto.Changeset

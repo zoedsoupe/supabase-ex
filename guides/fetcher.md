@@ -1,6 +1,6 @@
 # Supabase Fetcher
 
-The **Supabase Fetcher** is a versatile HTTP client that serves as an entry point for interacting with Supabase APIs from your Elixir applications. While it's often recommended to use higher-level APIs for specific Supabase services like [supabase-storage](https://github.com/zoedsoupe/supabase/tree/main/apps/supabase_storage) or the all-in-one package [supabase-potion](https://github.com/zoedsoupe/supabase), this SDK provides low-level capabilities for fine-grained control and customization.
+The **Supabase Fetcher** is a versatile HTTP client that serves as an entry point for interacting with Supabase APIs from your Elixir applications. While it's often recommended to use higher-level APIs for specific Supabase services like [`Supabase.Storage`](https://github.com/zoedsoupe/supabase/tree/main/lib/supabase/storage.ex), this SDK provides low-level capabilities for fine-grained control and customization.
 
 ## Overview
 
@@ -61,4 +61,4 @@ While the Supabase Fetcher Elixir SDK offers low-level control for making HTTP r
 
 ## Additional Information
 
-For more details on using this package, refer to the [Supabase Fetcher documentation](https://hexdocs.pm/supabase_fetcher).
+For more details on using this package, refer to the [Supabase Fetcher documentation](https://hexdocs.pm/supabase_potion).

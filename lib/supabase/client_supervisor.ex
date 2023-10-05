@@ -25,6 +25,16 @@ defmodule Supabase.ClientSupervisor do
 
       iex> Supabase.ClientSupervisor.start_child({Supabase.Client, opts})
       {:ok, #PID<0.123.0>}
+
+  Notice that the Supabase Elixir SDK already starts a `Supabase.ClientSupervisor`
+  internally, so you don't need to start it manually. However, if you want to
+  manage clients manually, you can leverage this module to start and stop
+  clients dynamically.
+
+  To manage manually the clients, you need to disable the internal management
+  into your application:
+
+      config :supabase, :manage_clients, false
   """
 
   use DynamicSupervisor

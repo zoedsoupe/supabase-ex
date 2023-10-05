@@ -15,21 +15,21 @@ defmodule Supabase.Storage do
 
   You can start by creating or managing buckets:
 
-      Supabase.Storage.create_bucket(conn, "my_new_bucket")
+      Supabase.Storage.create_bucket(client, "my_new_bucket")
 
   Once a bucket is set up, objects within the bucket can be managed:
 
-      Supabase.Storage.upload_object(conn, "my_bucket", "path/on/server.png", "path/on/local.png")
+      Supabase.Storage.upload_object(client, "my_bucket", "path/on/server.png", "path/on/local.png")
 
   ## Examples
 
   Here are some basic examples:
 
       # Removing an object
-      Supabase.Storage.remove_object(conn, "my_bucket", "path/on/server.png")
+      Supabase.Storage.remove_object(client, "my_bucket", "path/on/server.png")
 
       # Moving an object
-      Supabase.Storage.move_object(conn, "my_bucket", "path/on/server1.png", "path/on/server2.png")
+      Supabase.Storage.move_object(client, "my_bucket", "path/on/server1.png", "path/on/server2.png")
 
   Ensure to refer to method-specific documentation for detailed examples and explanations.
 
@@ -63,7 +63,7 @@ defmodule Supabase.Storage do
 
   ## Examples
 
-      iex> Supabase.Storage.list_buckets(conn)
+      iex> Supabase.Storage.list_buckets(client)
       {:ok, [%Supabase.Storage.Bucket{...}, ...]}
 
       iex> Supabase.Storage.list_buckets(invalid_conn)
@@ -92,7 +92,7 @@ defmodule Supabase.Storage do
 
   ## Examples
 
-      iex> Supabase.Storage.retrieve_bucket_info(conn, "avatars")
+      iex> Supabase.Storage.retrieve_bucket_info(client, "avatars")
       {:ok, %Supabase.Storage.Bucket{...}}
 
       iex> Supabase.Storage.retrieve_bucket_info(invalid_conn, "avatars")
@@ -129,7 +129,7 @@ defmodule Supabase.Storage do
 
   ## Examples
 
-      iex> Supabase.Storage.create_bucket(conn, %{id: "avatars"})
+      iex> Supabase.Storage.create_bucket(client, %{id: "avatars"})
       {:ok, %Supabase.Storage.Bucket{...}}
 
       iex> Supabase.Storage.create_bucket(invalid_conn, %{id: "avatars"})
@@ -172,7 +172,7 @@ defmodule Supabase.Storage do
 
   ## Examples
 
-      iex> Supabase.Storage.update_bucket(conn, bucket, %{public: true})
+      iex> Supabase.Storage.update_bucket(client, bucket, %{public: true})
       {:ok, %Supabase.Storage.Bucket{...}}
 
       iex> Supabase.Storage.update_bucket(invalid_conn, bucket, %{public: true})
@@ -206,7 +206,7 @@ defmodule Supabase.Storage do
 
   ## Examples
 
-      iex> Supabase.Storage.empty_bucket(conn, bucket)
+      iex> Supabase.Storage.empty_bucket(client, bucket)
       {:ok, :emptied}
 
       iex> Supabase.Storage.empty_bucket(invalid_conn, bucket)
@@ -235,7 +235,7 @@ defmodule Supabase.Storage do
 
   ## Examples
 
-      iex> Supabase.Storage.delete_bucket(conn, bucket)
+      iex> Supabase.Storage.delete_bucket(client, bucket)
       {:ok, :deleted}
 
       iex> Supabase.Storage.delete_bucket(invalid_conn, bucket)
@@ -268,7 +268,7 @@ defmodule Supabase.Storage do
 
   ## Examples
 
-      iex> Supabase.Storage.remove_object(conn, bucket, object)
+      iex> Supabase.Storage.remove_object(client, bucket, object)
       {:ok, :deleted}
 
       iex> Supabase.Storage.remove_object(invalid_conn, bucket, object)
@@ -299,7 +299,7 @@ defmodule Supabase.Storage do
 
   ## Examples
 
-      iex> Supabase.Storage.move_object(conn, bucket, object)
+      iex> Supabase.Storage.move_object(client, bucket, object)
       {:ok, :moved}
 
       iex> Supabase.Storage.move_object(invalid_conn, bucket, object)
@@ -330,7 +330,7 @@ defmodule Supabase.Storage do
 
   ## Examples
 
-      iex> Supabase.Storage.copy_object(conn, bucket, object)
+      iex> Supabase.Storage.copy_object(client, bucket, object)
       {:ok, :copied}
 
       iex> Supabase.Storage.copy_object(invalid_conn, bucket, object)
@@ -359,7 +359,7 @@ defmodule Supabase.Storage do
 
   ## Examples
 
-      iex> Supabase.Storage.retrieve_object_info(conn, bucket, "some.png")
+      iex> Supabase.Storage.retrieve_object_info(client, bucket, "some.png")
       {:ok, %Supabase.Storage.Object{...}}
 
       iex> Supabase.Storage.retrieve_object_info(invalid_conn, bucket, "some.png")
@@ -394,7 +394,7 @@ defmodule Supabase.Storage do
 
   And you want to list only the objects inside the `avatars` folder, you can do:
 
-      iex> Supabase.Storage.list_objects(conn, bucket, "avatars/")
+      iex> Supabase.Storage.list_objects(client, bucket, "avatars/")
       {:ok, [%Supabase.Storage.Object{...}]}
 
   Also you can pass some search options as a `Supabase.Storage.SearchOptions` struct. Available
@@ -414,7 +414,7 @@ defmodule Supabase.Storage do
 
   ## Examples
 
-      iex> Supabase.Storage.list_objects(conn, bucket)
+      iex> Supabase.Storage.list_objects(client, bucket)
       {:ok, [%Supabase.Storage.Object{...}, ...]}
 
       iex> Supabase.Storage.list_objects(invalid_conn, bucket)
@@ -455,7 +455,7 @@ defmodule Supabase.Storage do
 
   ## Examples
 
-      iex> Supabase.Storage.upload_object(conn, bucket, "avatars/some.png", "path/to/file.png")
+      iex> Supabase.Storage.upload_object(client, bucket, "avatars/some.png", "path/to/file.png")
       {:ok, %Supabase.Storage.Object{...}}
 
       iex> Supabase.Storage.upload_object(invalid_conn, bucket, "avatars/some.png", "path/to/file.png")
@@ -487,7 +487,7 @@ defmodule Supabase.Storage do
 
   ## Examples
 
-       iex> Supabase.Storage.download_object(conn, %Bucket{}, "avatars/some.png")
+       iex> Supabase.Storage.download_object(client, %Bucket{}, "avatars/some.png")
        {:ok, <<>>}
 
        iex> Supabase.Storage.download_object(invalid_conn, %Bucket{}, "avatars/some.png")
@@ -518,7 +518,7 @@ defmodule Supabase.Storage do
 
   ## Examples
 
-       iex> Supabase.Storage.download_object_lazy(conn, %Bucket{}, "avatars/some.png")
+       iex> Supabase.Storage.download_object_lazy(client, %Bucket{}, "avatars/some.png")
        {:ok, #Function<59.128620087/2 in Stream.resource/3>}
 
        iex> Supabase.Storage.download_object_lazy(invalid_conn, %Bucket{}, "avatars/some.png")
@@ -547,10 +547,10 @@ defmodule Supabase.Storage do
 
   ## Examples
 
-       iex> Supabase.Storage.save_object(conn, "./some.png", %Bucket{}, "avatars/some.png")
+       iex> Supabase.Storage.save_object(client, "./some.png", %Bucket{}, "avatars/some.png")
        :ok
 
-       iex> Supabase.Storage.save_object(conn, "./some.png", %Bucket{}, "do_not_exist.png")
+       iex> Supabase.Storage.save_object(client, "./some.png", %Bucket{}, "do_not_exist.png")
        {:error, reason}
 
   """
@@ -573,10 +573,10 @@ defmodule Supabase.Storage do
 
   ## Examples
 
-       iex> Supabase.Storage.save_object_stream(conn, "./some.png", %Bucket{}, "avatars/some.png")
+       iex> Supabase.Storage.save_object_stream(client, "./some.png", %Bucket{}, "avatars/some.png")
        :ok
 
-       iex> Supabase.Storage.save_object_stream(conn, "./some.png", %Bucket{}, "do_not_exist.png")
+       iex> Supabase.Storage.save_object_stream(client, "./some.png", %Bucket{}, "do_not_exist.png")
        {:error, reason}
 
   """
@@ -604,11 +604,11 @@ defmodule Supabase.Storage do
 
   ## Examples
 
-       iex> Supabase.Storage.create_signed_url(conn, bucket, "avatars/some.png", 3600)
+       iex> Supabase.Storage.create_signed_url(client, bucket, "avatars/some.png", 3600)
        {:ok, "https://<project>.supabase.co"/object/sign/<bucket>/<file>?token=<token>}
 
-       iex> Supabase.Storage.create_signed_url(invalid_conn, bucket, "avatars/some.png", 3600)
-       {:error, reason}
+       iex> Supabase.Storage.create_signed_url(invalid_client, bucket, "avatars/some.png", 3600)
+       {:error, :invalid_client}
 
   """
   @impl true

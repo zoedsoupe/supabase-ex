@@ -11,8 +11,8 @@ defmodule Supabase.Application do
   def start(_start_type, _args) do
     children = [
       {Finch, @finch_opts},
-      Supabase.ClientSupervisor,
-      Supabase.ClientRegistry,
+      if(manage_clients?(), do: Supabase.ClientSupervisor),
+      if(manage_clients?(), do: Supabase.ClientRegistry),
       if(start_cache?(), do: {Storage.Cache, cache_max_size: cache_max_size()}),
       if(start_cache?(), do: {Storage.CacheSupervisor, reload_interval: reload_interval()})
     ]
@@ -22,6 +22,10 @@ defmodule Supabase.Application do
     children
     |> Enum.reject(&is_nil/1)
     |> Supervisor.start_link(opts)
+  end
+
+  defp manage_clients? do
+    Application.get_env(:supabase, :manage_clients, true)
   end
 
   defp cache_max_size do

@@ -14,9 +14,19 @@ defmodule Supabase do
 
   ## Usage
 
-  After installing `:supabase_potion`, you can easily and dynamically manage different `Supabase.Client` and their `Supabase.Connection`. That means you can have multiple Supabase clients that manage multiple Supabase connections.
+  After installing `:supabase_potion`, you can easily and dynamically manage different `Supabase.Client`!
 
-  ### Clients vs Connections
+  ### Config
+
+  The library offers a bunch of config options that can be used to control management of clients and other options.
+
+  - `manage_clients` - whether to manage clients automatically, defaults to `true`
+
+  You can set up the library on your `config.exs`:
+
+      config :supabase, manage_clients: false
+
+  ### Clients
 
   A `Supabase.Client` is an Agent that holds general information about Supabase, that can be used to intereact with any of the children integrations, for example: `Supabase.Storage` or `Supabase.UI`.
 
@@ -25,7 +35,10 @@ defmodule Supabase do
   `Supabase.Client` is defined as:
 
   - `:name` - the name of the client, started by `start_link/1`
-  - `:connections` - a list of `%{conn_alias => conn_name}`, where `conn_alias` is the alias of the connection and `conn_name` is the name of the connection.
+  - `:conn` - connection information, the only required option as it is vital to the `Supabase.Client`.
+    - `:base_url` - The base url of the Supabase API, it is usually in the form `https://<app-name>.supabase.io`.
+    - `:api_key` - The API key used to authenticate requests to the Supabase API.
+    - `:access_token` - Token with specific permissions to access the Supabase API, it is usually the same as the API key.
   - `:db` - default database options
     - `:schema` - default schema to use, defaults to `"public"`
   - `:global` - global options config
@@ -40,39 +53,16 @@ defmodule Supabase do
     - `:storage_key` - storage key
 
 
-  On the other side, a `Supabase.Connection` is an Agent that holds the connection information and the current bucket, being defined as:
-
-  - `:base_url` - The base url of the Supabase API, it is usually in the form `https://<app-name>.supabase.io`.
-  - `:api_key` - The API key used to authenticate requests to the Supabase API.
-  - `:access_token` - Token with specific permissions to access the Supabase API, it is usually the same as the API key.
-  - `:name` - Simple field to track the name of the connection, started by `start_link/1`.
-  - `:alias` - Field to easily manage multiple connections on a `Supabase.Client` Agent.
-  - `:bucket` - The current bucket to perform operations on.
-
-  In simple words, a `Supabase.Client` is a container for multiple `Supabase.Connection`, and each `Supabase.Connection` is a container for a single bucket.
-
-  ## Starting a Connection
-
-  To start a new Connection you need to call `Supabase.Connection.start_link/1`:
-
-       iex> Supabase.Connection.start_link(name: :my_conn, conn_info: %{base_url: "https://myapp.supabase.io", api_key: "my_api_key"})
-       {:ok, #PID<0.123.0>}
-
-  But usually you would start a Connection using a higher level API, defined in `Supabase` module, using the `Supabase.init_connection/1` function:
-
-       iex> Supabase.init_connection(%{base_url: "https://myapp.supabase.io", api_key: "my_api_key", name: :my_conn, alias: :conn1})
-       {:ok, #PID<0.123.0>}
-
   ## Starting a Client
 
-  After starting some Connections, you then can start a Client calling `Supabase.Client.start_link/1`:
+  You then can start a Client calling `Supabase.Client.start_link/1`:
 
       iex> Supabase.Client.start_link(name: :my_client, client_info: %{db: %{schema: "public"}})
       {:ok, #PID<0.123.0>}
 
-  Notice that this way to start a Client is not recommended, since you will need to manage the `Supabase.Client` manually. Instead, you can use `Supabase.init_client/2`, passing the Client options, and also a list of connections that the Client will manage:
+  Notice that this way to start a Client is not recommended, since you will need to manage the `Supabase.Client` manually. Instead, you can use `Supabase.init_client/1`, passing the Client options:
 
-      iex> Supabase.Client.init_client(%{db: %{schema: "public"}}, conn_list)
+      iex> Supabase.Client.init_client(%{conn: %{base_url: "<supa-url>", api_key: "<supa-key>"}})
       {:ok, #PID<0.123.0>}
 
   ## Acknowledgements
@@ -80,23 +70,12 @@ defmodule Supabase do
   This package represents the complete SDK for Supabase. That means
   that it includes all of the functionality of the Supabase client integrations, as:
 
-  - `supabase-storage` - [Hex documentation](https://hex.pm/packages/supabase_storage)
-  - `supabase-postgrest` - [Hex documentation](https://hex.pm/packages/supabase_postgrest)
-  - `supabase-realtime` - [Hex documentation](https://hex.pm/packages/supabase_realtime)
-  - `supabase-auth` - [Hex documentation](https://hex.pm/packages/supabase_auth)
-  - `supabase-ui` - [Hex documentation](https://hex.pm/packages/supabase_ui)
-  - `supabase-fetcher` - [Hex documentation](https://hex.pm/packages/supabase_fetcher)
-
-  Of course, if you would like to use only a specific functionality, you can use the following a desired number of packages, example:
-
-      defp deps do
-        [
-          {:supabase_storage, "~> 0.1"},
-          {:supabase_realtime, "~> 0.1"},
-        ]
-      end
-
-  Notice that if you prefer to install only a specific package, you will need to manage a `Supabase.Connection` manually. More documentation can be found in [supabase_connection documentation](https://hexdocs.pm/supabase_connection).
+  - `Supabase.Fetcher`
+  - `Supabase.Storage`
+  - `supabase-postgrest` - TODO
+  - `supabase-realtime` - TODO
+  - `supabase-auth`- TODO
+  - `supabase-ui` - TODO
 
   ### Supabase Storage
 

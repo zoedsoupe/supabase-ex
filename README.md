@@ -6,14 +6,13 @@ This monorepo houses the collection of Elixir SDK packages for integrating with 
 
 ## Packages Overview
 
-- **Supabase**: Main entrypoint for the Supabase SDK library, providing easy management for Supabase clients and connections.
-- **Supabase Connection**: Handles individual connections to Supabase, encapsulating the API endpoint and credentials.
-- **Supabase Storage**: Offers developers a way to store large objects like images, videos, and other files.
-- **Supabase PostgREST**: Directly turns your PostgreSQL database into a RESTful API using PostgREST.
-- **Supabase Realtime**: Provides a realtime websocket API, enabling listening to database changes.
-- **Supabase Auth**: A comprehensive user authentication system, complete with email sign-in, password recovery, session management, and more.
-- **Supabase UI**: UI components to help build Supabase-powered applications quickly.
-- **Supabase Fetcher**: Customized HTTP client for making requests to Supabase APIs.
+- **Supabase**: Main entrypoint for the Supabase SDK library, providing easy management for Supabase clients and connections. [Guide](#usage).
+- **Supabase Storage**: Offers developers a way to store large objects like images, videos, and other files. [Guide](./guides/storage.md)
+- **Supabase PostgREST**: Directly turns your PostgreSQL database into a RESTful API using PostgREST. [Guide](#)
+- **Supabase Realtime**: Provides a realtime websocket API, enabling listening to database changes. [Guide](#)
+- **Supabase Auth**: A comprehensive user authentication system, complete with email sign-in, password recovery, session management, and more. [Guide](#)
+- **Supabase UI**: UI components to help build Supabase-powered applications quickly. [Guide](#)
+- **Supabase Fetcher**: Customized HTTP client for making requests to Supabase APIs. [Guide](./guides/fetcher.md)
 
 ## Getting Started
 
@@ -29,71 +28,40 @@ def deps do
 end
 ```
 
-### Clients vs Connections
+### Clients
 
 A `Supabase.Client` is an Agent that holds general information about Supabase, that can be used to intereact with any of the children integrations, for example: `Supabase.Storage` or `Supabase.UI`.
-
-Also a `Supabase.Client` holds a list of `Supabase.Connection` that can be used to perform operations on different buckets, for example.
 
 `Supabase.Client` is defined as:
 
 - `:name` - the name of the client, started by `start_link/1`
-- `:connections` - a list of `%{conn_alias => conn_name}`, where `conn_alias` is the alias of the connection and `conn_name` is the name of the connection.
+- `:conn` - connection information, the only required option as it is vital to the `Supabase.Client`.
+    - `:base_url` - The base url of the Supabase API, it is usually in the form `https://<app-name>.supabase.io`.
+    - `:api_key` - The API key used to authenticate requests to the Supabase API.
+    - `:access_token` - Token with specific permissions to access the Supabase API, it is usually the same as the API key.
 - `:db` - default database options
-- `:schema` - default schema to use, defaults to `"public"`
+    - `:schema` - default schema to use, defaults to `"public"`
 - `:global` - global options config
-- `:headers` - additional headers to use on each request
+    - `:headers` - additional headers to use on each request
 - `:auth` - authentication options
-- `:auto_refresh_token` - automatically refresh the token when it expires, defaults to `true`
-- `:debug` - enable debug mode, defaults to `false`
-- `:detect_session_in_url` - detect session in URL, defaults to `true`
-- `:flow_type` - authentication flow type, defaults to `"web"`
-- `:persist_session` - persist session, defaults to `true`
-- `:storage` - storage type
-- `:storage_key` - storage key
-
-
-On the other side, a `Supabase.Connection` is an Agent that holds the connection information and the current bucket, being defined as:
-
-- `:base_url` - The base url of the Supabase API, it is usually in the form `https://<app-name>.supabase.io`.
-- `:api_key` - The API key used to authenticate requests to the Supabase API.
-- `:access_token` - Token with specific permissions to access the Supabase API, it is usually the same as the API key.
-- `:name` - Simple field to track the name of the connection, started by `start_link/1`.
-- `:alias` - Field to easily manage multiple connections on a `Supabase.Client` Agent.
-- `:bucket` - The current bucket to perform operations on.
-
-In simple words, a `Supabase.Client` is a container for multiple `Supabase.Connection`, and each `Supabase.Connection` is a container for a single bucket.
+    - `:auto_refresh_token` - automatically refresh the token when it expires, defaults to `true`
+    - `:debug` - enable debug mode, defaults to `false`
+    - `:detect_session_in_url` - detect session in URL, defaults to `true`
+    - `:flow_type` - authentication flow type, defaults to `"web"`
+    - `:persist_session` - persist session, defaults to `true`
+    - `:storage` - storage type
+    - `:storage_key` - storage key
 
 ## Usage
 
-The Supabase Elixir SDK provides a flexible way to manage `Supabase.Client` instances, which can, in turn, manage multiple `Supabase.Connection` instances. Here's a brief overview of the key concepts:
-
-- **Supabase.Client**: This represents a container for multiple connections and holds general information about your Supabase setup. It can be used to interact with various Supabase services.
-
-- **Supabase.Connection**: A connection holds information about the connection to the Supabase API, including the base URL, API key, and access token. Each connection can be associated with a specific bucket for performing operations.
-
-### Starting a Connection
-
-To start a new connection, you can use the `Supabase.Connection.start_link/1` function. For example:
-
-```elixir
-iex> Supabase.Connection.start_link(name: :my_conn, conn_info: %{base_url: "https://myapp.supabase.io", api_key: "my_api_key"})
-{:ok, #PID<0.123.0>}
-```
-
-Alternatively, you can use the higher-level API provided by the `Supabase` module, using the `Supabase.init_connection/1` function:
-
-```elixir
-iex> Supabase.init_connection(%{base_url: "https://myapp.supabase.io", api_key: "my_api_key", name: :my_conn, alias: :conn1})
-{:ok, #PID<0.123.0>}
-```
+The Supabase Elixir SDK provides a flexible way to manage `Supabase.Client` instances, which can, in turn, manage multiple `Supabase.Client` instances. Here's a brief overview of the key concepts:
 
 ### Starting a Client
 
-After starting one or more connections, you can start a client using the `Supabase.Client.start_link/1` function. However, it's recommended to use `Supabase.init_client/2`, which allows you to pass client options and a list of connections that the client will manage. For example:
+You can start a client using the `Supabase.Client.start_link/1` function. However, it's recommended to use `Supabase.init_client/1`, which allows you to pass client options and automatically manage `Supabase.Client` processes.
 
 ```elixir
-iex> Supabase.Client.init_client(%{db: %{schema: "public"}}, conn_list)
+iex> Supabase.Client.init_client(%{conn: %{base_url: "<supa-url>", api_key: "<supa-key>"}})
 {:ok, #PID<0.123.0>}
 ```
 
@@ -132,7 +100,8 @@ Ensure your Supabase configurations are set:
 ```elixir
 import Config
 
-config :supabase_fetch,
+config :supabase,
+  manage_clients?: true,
   supabase_url: System.fetch_env!("SUPABASE_BASE_URL"),
   supabase_key: System.fetch_env!("SUPABASE_API_KEY"),
 ```

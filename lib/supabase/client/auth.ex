@@ -1,5 +1,22 @@
 defmodule Supabase.Client.Auth do
-  @moduledoc false
+  @moduledoc """
+  Auth configuration schema. This schema is used to configure the auth
+  options. This schema is embedded in the `Supabase.Client` schema.
+
+  ## Fields
+
+  - `:auto_refresh_token` - Automatically refresh the token when it expires. Defaults to `true`.
+  - `:debug` - Enable debug mode. Defaults to `false`.
+  - `:detect_session_in_url` - Detect session in URL. Defaults to `true`.
+  - `:flow_type` - Authentication flow type. Defaults to `"implicit"`.
+  - `:persist_session` - Persist session. Defaults to `true`.
+  - `:storage` - Storage type.
+  - `:storage_key` - Storage key. Default to `"sb-$host-auth-token"` where $host is the hostname of your Supabase URL.
+
+  For more information about the auth options, see the documentation for
+  the [client](https://supabase.com/docs/reference/javascript/initializing) and
+  [auth guides](https://supabase.com/docs/guides/auth)
+  """
 
   use Ecto.Schema
   import Ecto.Changeset

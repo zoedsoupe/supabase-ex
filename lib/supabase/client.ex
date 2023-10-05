@@ -17,7 +17,7 @@ defmodule Supabase.Client do
 
         def start(_type, _args) do
           children = [
-            {Supabase.Client, name: :supabase, client_info: %{connections: %{default: :supabase}}}
+            {Supabase.Client, name: :supabase, client_info: %Supabase.Client{}}
           ]
 
           opts = [strategy: :one_for_one, name: MyApp.Supervisor]
@@ -37,8 +37,10 @@ defmodule Supabase.Client do
       iex> Supabase.Client.retrieve_client(:supabase)
       %Supabase.Client{
         name: :supabase,
-        connections: %{
-          default: :supabase
+        conn: %{
+          base_url: "https://<app-name>.supabase.io",
+          api_key: "<supabase-api-key>",
+          access_token: "<supabase-access-token>"
         },
         db: %Supabase.Client.Db{
           schema: "public"
@@ -50,16 +52,18 @@ defmodule Supabase.Client do
           auto_refresh_token: true,
           debug: false,
           detect_session_in_url: true,
-          flow_type: nil,
+          flow_type: :implicit,
           persist_session: true,
           storage: nil,
-          storage_key: nil
+          storage_key: "sb-<host>-auth-token"
         }
       }
 
-      iex> Supabase.Client.retrieve_connections(:supabase)
-      %{
-        default: :supabase
+      iex> Supabase.Client.retrieve_connection(:supabase)
+      %Supabase.Client.Conn{
+        base_url: "https://<app-name>.supabase.io",
+        api_key: "<supabase-api-key>",
+        access_token: "<supabase-access-token>"
       }
   """
 
