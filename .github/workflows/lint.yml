@@ -31,4 +31,4 @@ jobs:
       - name: Earthly version
         run: earthly --version
       - name: Run lint
-        run: earthly -P --build-arg GITHUB_REPO=${{ github.repository }} +ci
+        run: earthly -P +ci
