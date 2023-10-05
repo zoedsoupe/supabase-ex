@@ -123,8 +123,8 @@ defmodule Supabase do
   Supabase Fetcher is a customized HTTP client for Supabase. Mainly used in Supabase Potion. If you want a complete control on how to make requests to any Supabase API, you would use this package directly.
   """
 
-  alias Supabase.ClientRegistry
   alias Supabase.Client
+  alias Supabase.ClientRegistry
   alias Supabase.ClientSupervisor
 
   @typep changeset :: Ecto.Changeset.t()
