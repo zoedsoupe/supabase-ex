@@ -31,4 +31,4 @@ jobs:
       - name: Earthly version
         run: earthly --version
       - name: Run unit tests
-        run: earthly -P --build-arg GITHUB_REPO=${{ github.repository }} +unit-test
+        run: earthly -P +unit-test
