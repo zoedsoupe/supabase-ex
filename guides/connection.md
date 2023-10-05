@@ -1,22 +1,6 @@
 # Supabase Connection
 
-![Supabase Logo](https://supabase.io/img/supabase-logo.svg)
-
 The **Supabase Connection** is a fundamental component of the Supabase ecosystem, designed to streamline your interaction with the Supabase platform from your Elixir applications. This package enables you to manage connections to Supabase, allowing you to perform various operations on Supabase services such as storage, authentication, and more.
-
-## Installation
-
-To get started, you can add the `supabase_connection` package to your Elixir project's dependencies by including it in your `mix.exs` file:
-
-```elixir
-def deps do
-  [
-    {:supabase_connection, "~> 0.1"}
-  ]
-end
-```
-
-After adding the dependency, run `mix deps.get` to fetch and install the SDK.
 
 ## Starting a Connection
 
@@ -82,8 +66,4 @@ This package is a critical part of the Supabase Elixir ecosystem, enabling seaml
 
 ## Additional Information
 
-For more details on using this package and the Supabase Elixir SDK as a whole, refer to the [Supabase Elixir SDK documentation](https://hexdocs.pm/supabase_connection).
-
----
-
-With the **Supabase Connection Elixir SDK**, you can effortlessly manage connections to the Supabase platform, empowering your Elixir applications to leverage the full potential of Supabase's cloud services. Enjoy coding with Supabase! 😄
+For more details on using this package and the Supabase Elixir SDK as a whole, refer to the [Supabase Elixir SDK documentation](https://hexdocs.pm/supabase_potion).

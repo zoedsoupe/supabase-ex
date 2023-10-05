@@ -39,7 +39,7 @@ defmodule Supabase.Storage do
   operations can be performed without any hitches.
   """
 
-  import Supabase.Connection
+  # import Supabase.Connection
 
   alias Supabase.Storage.Bucket
   alias Supabase.Storage.BucketHandler
@@ -70,9 +70,9 @@ defmodule Supabase.Storage do
   """
   @impl true
   def list_buckets(conn) do
-    base_url = get_base_url(conn)
-    api_key = get_api_key(conn)
-    token = get_access_token(conn)
+    base_url = ""
+    api_key = ""
+    token = ""
 
     BucketHandler.list(base_url, api_key, token)
   end
@@ -97,9 +97,9 @@ defmodule Supabase.Storage do
   """
   @impl true
   def retrieve_bucket_info(conn, id) do
-    base_url = get_base_url(conn)
-    api_key = get_api_key(conn)
-    token = get_access_token(conn)
+    base_url = ""
+    api_key = ""
+    token = ""
 
     BucketHandler.retrieve_info(base_url, api_key, token, id)
   end
@@ -133,9 +133,9 @@ defmodule Supabase.Storage do
   @impl true
   def create_bucket(conn, attrs) do
     with {:ok, bucket_params} <- Bucket.create_changeset(attrs),
-         base_url = get_base_url(conn),
-         api_key = get_api_key(conn),
-         token = get_access_token(conn),
+         base_url = "",
+         api_key = "",
+         token = "",
          {:ok, _} <- BucketHandler.create(base_url, api_key, token, bucket_params) do
       retrieve_bucket_info(conn, bucket_params.id)
     end
@@ -171,9 +171,9 @@ defmodule Supabase.Storage do
   @impl true
   def update_bucket(conn, bucket, attrs) do
     with {:ok, bucket_params} <- Bucket.update_changeset(bucket, attrs),
-         base_url = get_base_url(conn),
-         api_key = get_api_key(conn),
-         token = get_access_token(conn),
+         base_url = "",
+         api_key = "",
+         token = "",
          {:ok, _} <- BucketHandler.update(base_url, api_key, token, bucket.id, bucket_params) do
       retrieve_bucket_info(conn, bucket.id)
     end
@@ -199,9 +199,9 @@ defmodule Supabase.Storage do
   """
   @impl true
   def empty_bucket(conn, %Bucket{} = bucket) do
-    base_url = get_base_url(conn)
-    api_key = get_api_key(conn)
-    token = get_access_token(conn)
+    base_url = ""
+    api_key = ""
+    token = ""
 
     BucketHandler.empty(base_url, api_key, token, bucket.id)
   end
@@ -226,12 +226,12 @@ defmodule Supabase.Storage do
   """
   @impl true
   def delete_bucket(conn, %Bucket{} = bucket) do
-    base_url = get_base_url(conn)
-    api_key = get_api_key(conn)
-    token = get_access_token(conn)
+    base_url = ""
+    api_key = ""
+    token = ""
 
     with {:ok, _} <- BucketHandler.delete(base_url, api_key, token, bucket.id) do
-      remove_current_bucket(conn)
+      # remove_current_bucket(conn)
       {:ok, :deleted}
     end
   end
@@ -256,9 +256,9 @@ defmodule Supabase.Storage do
   """
   @impl true
   def remove_object(conn, %Bucket{} = bucket, %Object{} = object) do
-    base_url = get_base_url(conn)
-    api_key = get_api_key(conn)
-    token = get_access_token(conn)
+    base_url = ""
+    api_key = ""
+    token = ""
 
     ObjectHandler.remove(base_url, api_key, token, bucket.name, object.path)
   end
@@ -285,9 +285,9 @@ defmodule Supabase.Storage do
   """
   @impl true
   def move_object(conn, %Bucket{} = bucket, %Object{} = object, to) do
-    base_url = get_base_url(conn)
-    api_key = get_api_key(conn)
-    token = get_access_token(conn)
+    base_url = ""
+    api_key = ""
+    token = ""
 
     ObjectHandler.move(base_url, api_key, token, bucket.name, object.path, to)
   end
@@ -314,9 +314,9 @@ defmodule Supabase.Storage do
   """
   @impl true
   def copy_object(conn, %Bucket{} = bucket, %Object{} = object, to) do
-    base_url = get_base_url(conn)
-    api_key = get_api_key(conn)
-    token = get_access_token(conn)
+    base_url = ""
+    api_key = ""
+    token = ""
 
     ObjectHandler.copy(base_url, api_key, token, bucket.name, object.path, to)
   end
@@ -341,9 +341,9 @@ defmodule Supabase.Storage do
   """
   @impl true
   def retrieve_object_info(conn, %Bucket{} = bucket, wildcard) do
-    base_url = get_base_url(conn)
-    api_key = get_api_key(conn)
-    token = get_access_token(conn)
+    base_url = ""
+    api_key = ""
+    token = ""
 
     ObjectHandler.get_info(base_url, api_key, token, bucket.name, wildcard)
   end
@@ -394,9 +394,9 @@ defmodule Supabase.Storage do
   """
   @impl true
   def list_objects(conn, %Bucket{} = bucket, prefix \\ "", opts \\ %SearchOptions{}) do
-    base_url = get_base_url(conn)
-    api_key = get_api_key(conn)
-    token = get_access_token(conn)
+    base_url = ""
+    api_key = ""
+    token = ""
 
     ObjectHandler.list(base_url, api_key, token, bucket.name, prefix, opts)
   end
@@ -432,9 +432,9 @@ defmodule Supabase.Storage do
   """
   @impl true
   def upload_object(conn, %Bucket{} = bucket, path, file, opts \\ %ObjectOptions{}) do
-    base_url = get_base_url(conn)
-    api_key = get_api_key(conn)
-    token = get_access_token(conn)
+    base_url = ""
+    api_key = ""
+    token = ""
     file = Path.expand(file)
 
     ObjectHandler.create_file(base_url, api_key, token, bucket.name, path, file, opts)
@@ -461,9 +461,9 @@ defmodule Supabase.Storage do
   """
   @impl true
   def download_object(conn, %Bucket{} = bucket, wildcard) do
-    base_url = get_base_url(conn)
-    api_key = get_api_key(conn)
-    token = get_access_token(conn)
+    base_url = ""
+    api_key = ""
+    token = ""
 
     ObjectHandler.get(base_url, api_key, token, bucket.name, wildcard)
   end
@@ -490,9 +490,9 @@ defmodule Supabase.Storage do
   """
   @impl true
   def download_object_lazy(conn, %Bucket{} = bucket, wildcard) do
-    base_url = get_base_url(conn)
-    api_key = get_api_key(conn)
-    token = get_access_token(conn)
+    base_url = ""
+    api_key = ""
+    token = ""
 
     ObjectHandler.get_lazy(base_url, api_key, token, bucket.name, wildcard)
   end
@@ -574,9 +574,9 @@ defmodule Supabase.Storage do
   """
   @impl true
   def create_signed_url(conn, %Bucket{} = bucket, path, expires_in) do
-    base_url = get_base_url(conn)
-    api_key = get_api_key(conn)
-    token = get_access_token(conn)
+    base_url = ""
+    api_key = ""
+    token = ""
 
     with {:ok, sign_url} <-
            ObjectHandler.create_signed_url(

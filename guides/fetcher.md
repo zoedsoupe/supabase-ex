@@ -1,22 +1,6 @@
 # Supabase Fetcher
 
-![Supabase Logo](https://supabase.io/img/supabase-logo.svg)
-
 The **Supabase Fetcher** is a versatile HTTP client that serves as an entry point for interacting with Supabase APIs from your Elixir applications. While it's often recommended to use higher-level APIs for specific Supabase services like [supabase-storage](https://github.com/zoedsoupe/supabase/tree/main/apps/supabase_storage) or the all-in-one package [supabase-potion](https://github.com/zoedsoupe/supabase), this SDK provides low-level capabilities for fine-grained control and customization.
-
-## Installation
-
-To get started with the Supabase Fetcher Elixir SDK, add it to your Elixir project's dependencies by including it in your `mix.exs` file:
-
-```elixir
-def deps do
-  [
-    {:supabase_fetcher, "~> 0.1"}
-  ]
-end
-```
-
-After adding the dependency, run `mix deps.get` to fetch and install the SDK.
 
 ## Overview
 
@@ -24,14 +8,23 @@ This SDK allows you to make HTTP requests to Supabase and handle responses effic
 
 ## Usage
 
+### Basic Request
+
+TODO
+
 ### Streaming Large Files
 
 You can use `Supabase.Fetcher.stream/3` to make a GET request to a URL and stream back the response. This function is especially useful for streaming large file downloads. Custom `Finch` options can also be passed for more control over the request.
 
 ```elixir
-{iex> {status, stream} = Supabase.Fetcher.stream("https://example.com")
+iex> {status, stream} = Supabase.Fetcher.stream("https://example.com")
 iex> file = File.stream!("path/to/file", [], 4096)
 Stream.run Stream.into(stream, file)
+```
+
+```elixir
+iex> headers = [{"authorization", "<supabase-key>"}]
+iex> Supabase.Fetcher.stram("<url>", headers, opts) # opts are passed directly to Finch.stream/5
 ```
 
 ### Making HTTP Requests
@@ -69,7 +62,3 @@ While the Supabase Fetcher Elixir SDK offers low-level control for making HTTP r
 ## Additional Information
 
 For more details on using this package, refer to the [Supabase Fetcher documentation](https://hexdocs.pm/supabase_fetcher).
-
----
-
-With the **Supabase Fetcher Elixir SDK**, you have the power to interact with Supabase APIs directly from your Elixir applications. Whether you need to stream large files, make custom HTTP requests, or upload files, this SDK has you covered. Enjoy the flexibility and control it offers in integrating with Supabase services! 😄

@@ -1,18 +1,6 @@
 # Supabase Storage
 
-This package provides a set of Elixir functions that integrate seamlessly with Supabase's Storage API, allowing developers to perform various operations on buckets and objects.
-
-### Installation
-
-To add this package to your project, include it in your mix.exs file:
-
-```elixir
-def deps do
-  [
-    {:supabase_storage, "~> 0.1"}
-  ]
-end
-```
+This module provides a set of Elixir functions that integrate seamlessly with Supabase's Storage API, allowing developers to perform various operations on buckets and objects.
 
 ### Features
 
@@ -61,7 +49,3 @@ Supabase.Storage.create_signed_url(conn, bucket, "avatars/some.png", 3600)
 ### Permissions
 
 Ensure that the appropriate policy permissions are set in Supabase to carry out the required operations. Refer to each method's documentation for detailed information on permissions.
-
-### Contributing
-
-We welcome contributions from the community! Please submit PRs for bug fixes, features, or any improvements.

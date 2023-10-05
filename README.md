@@ -29,18 +29,6 @@ def deps do
 end
 ```
 
-Or, install specific packages as needed:
-
-```elixir
-def deps do
-  [
-    {:supabase_storage, "~> 0.1"},
-    {:supabase_realtime, "~> 0.1"},
-    # ... add other packages
-  ]
-end
-```
-
 ### Clients vs Connections
 
 A `Supabase.Client` is an Agent that holds general information about Supabase, that can be used to intereact with any of the children integrations, for example: `Supabase.Storage` or `Supabase.UI`.
@@ -76,34 +64,66 @@ On the other side, a `Supabase.Connection` is an Agent that holds the connection
 
 In simple words, a `Supabase.Client` is a container for multiple `Supabase.Connection`, and each `Supabase.Connection` is a container for a single bucket.
 
-### Establishing a Connection
+## Usage
 
-To start a Supabase connection:
+The Supabase Elixir SDK provides a flexible way to manage `Supabase.Client` instances, which can, in turn, manage multiple `Supabase.Connection` instances. Here's a brief overview of the key concepts:
 
-```elixir
-Supabase.init_connection(%{base_url: "https://myapp.supabase.io", api_key: "my_api_key", name: :my_conn, alias: :conn})
-```
+- **Supabase.Client**: This represents a container for multiple connections and holds general information about your Supabase setup. It can be used to interact with various Supabase services.
 
-This will automatically adds the Connection instance to a `DynamicSupervisor` that can be found in the [`Supabase.Connection`](./apps/supabase_connection/lib/supabase/connection_supervisor.ex) specific module documentation.
+- **Supabase.Connection**: A connection holds information about the connection to the Supabase API, including the base URL, API key, and access token. Each connection can be associated with a specific bucket for performing operations.
 
-For manually Connection creation and management, please refer to the corresponding documentation:
+### Starting a Connection
 
-- [Supabase.Connection](./apps/supabase_connection/lib/supabase/connection.ex)
-
-### Creating a Client
-
-To start a Supabase Client:
+To start a new connection, you can use the `Supabase.Connection.start_link/1` function. For example:
 
 ```elixir
-Supabase.init_client(%{name: :my_client}, [conn_list])
+iex> Supabase.Connection.start_link(name: :my_conn, conn_info: %{base_url: "https://myapp.supabase.io", api_key: "my_api_key"})
+{:ok, #PID<0.123.0>}
 ```
 
-This will automatically adds the Client instance to a `DynamicSupervisor` that can be found in the [`Supabase.ClientSupervisor`](./apps/supabase/lib/supabase/client_supervisor.ex) specific module documentation.
+Alternatively, you can use the higher-level API provided by the `Supabase` module, using the `Supabase.init_connection/1` function:
 
-For manually Client creation and management, please refer to the corresponding documentation:
+```elixir
+iex> Supabase.init_connection(%{base_url: "https://myapp.supabase.io", api_key: "my_api_key", name: :my_conn, alias: :conn1})
+{:ok, #PID<0.123.0>}
+```
 
-- [Supabase.Client](./apps/supabase/lib/supabase/client.ex)
+### Starting a Client
 
+After starting one or more connections, you can start a client using the `Supabase.Client.start_link/1` function. However, it's recommended to use `Supabase.init_client/2`, which allows you to pass client options and a list of connections that the client will manage. For example:
+
+```elixir
+iex> Supabase.Client.init_client(%{db: %{schema: "public"}}, conn_list)
+{:ok, #PID<0.123.0>}
+```
+
+## Supabase Services
+
+The Supabase Elixir SDK allows you to interact with various Supabase services:
+
+### Supabase Storage
+
+Supabase Storage is a service for storing large objects like images, videos, and other files. It provides a simple API with strong consistency, similar to AWS S3.
+
+### Supabase PostgREST
+
+PostgREST is a web server that turns your PostgreSQL database into a RESTful API. It automatically generates API endpoints and operations based on your database's structure and permissions.
+
+### Supabase Realtime
+
+Supabase Realtime offers a realtime WebSocket API powered by PostgreSQL notifications. You can use it to listen to changes in your database and receive updates instantly as they happen.
+
+### Supabase Auth
+
+Supabase Auth is a comprehensive user authentication system that includes features like email and password sign-in, email verification, password recovery, session management, and more, out of the box.
+
+### Supabase UI
+
+Supabase UI provides a set of UI components to help you build Supabase-powered applications quickly. It's built on top of Tailwind CSS and Headless UI, and it's fully customizable. The package even includes `Phoenix.LiveView` components!
+
+### Supabase Fetcher
+
+Supabase Fetcher is a customized HTTP client for Supabase, mainly used in Supabase Potion. It gives you complete control over how you make requests to any Supabase API.
 
 ## Configuration
 
@@ -127,6 +147,7 @@ If you want to track integration-specific roadmaps, check their own README.
 
 - [x] Fetcher to interact with the Supabase API in a low-level way
 - [x] Supabase Storage integration
+- [ ] Supabase UI for Phoenix Live View
 - [ ] Supabase Postgrest integration
 - [ ] Supabase Auth integration
 - [ ] Supabase Realtime API integration
@@ -154,3 +175,7 @@ This SDK is a comprehensive representation of Supabase's client integrations. Th
 ## License
 
 [MIT](LICENSE)
+
+---
+
+With the Supabase Elixir SDK, you have the tools you need to supercharge your Elixir applications by seamlessly integrating them with Supabase's powerful cloud services. Happy coding! 😄
