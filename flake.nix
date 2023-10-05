@@ -15,7 +15,7 @@
         name = "supabase-potion";
         shellHook = "mkdir -p $PWD/.nix-mix";
         packages = with pkgs;
-          [elixir postgresql_15]
+          [beam.packages.erlangR26.elixir postgresql_15]
           ++ lib.optional stdenv.isDarwin [
             darwin.apple_sdk.frameworks.CoreServices
             darwin.apple_sdk.frameworks.CoreFoundation
