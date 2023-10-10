@@ -18,6 +18,7 @@ defmodule Supabase.Client.Db do
   @type t :: %__MODULE__{schema: String.t()}
   @type params :: %{schema: String.t()}
 
+  @primary_key false
   embedded_schema do
     field(:schema, :string, default: "public")
   end

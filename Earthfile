@@ -25,7 +25,6 @@ unit-test:
   FROM +deps
   RUN MIX_ENV=test mix deps.compile
   COPY mix.exs mix.lock ./
-  COPY --dir config ./
   COPY --dir lib ./
   COPY --dir test ./
 	RUN mix test

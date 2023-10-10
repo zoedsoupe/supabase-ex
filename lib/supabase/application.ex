@@ -3,8 +3,6 @@ defmodule Supabase.Application do
 
   use Application
 
-  alias Supabase.Storage
-
   @finch_opts [name: Supabase.Finch, pools: %{:default => [size: 10]}]
 
   @impl true
@@ -12,9 +10,7 @@ defmodule Supabase.Application do
     children = [
       {Finch, @finch_opts},
       if(manage_clients?(), do: Supabase.ClientSupervisor),
-      if(manage_clients?(), do: Supabase.ClientRegistry),
-      if(start_cache?(), do: {Storage.Cache, cache_max_size: cache_max_size()}),
-      if(start_cache?(), do: {Storage.CacheSupervisor, reload_interval: reload_interval()})
+      if(manage_clients?(), do: Supabase.ClientRegistry)
     ]
 
     opts = [strategy: :one_for_one, name: Supabase.Supervisor]
@@ -26,17 +22,5 @@ defmodule Supabase.Application do
 
   defp manage_clients? do
     Application.get_env(:supabase, :manage_clients, true)
-  end
-
-  defp cache_max_size do
-    Application.get_env(:supabase, :cache_max_size, 100)
-  end
-
-  defp start_cache? do
-    Application.get_env(:supabase, :cache_buckets?)
-  end
-
-  defp reload_interval do
-    Application.get_env(:supabase, :reload_interval, 60_000)
   end
 end

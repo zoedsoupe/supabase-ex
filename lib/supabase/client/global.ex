@@ -14,6 +14,7 @@ defmodule Supabase.Client.Global do
   @type t :: %__MODULE__{headers: Map.t()}
   @type params :: %{headers: Map.t()}
 
+  @primary_key false
   embedded_schema do
     field(:headers, {:map, :string}, default: %{})
   end
