@@ -2,6 +2,11 @@
 
 This module provides a set of Elixir functions that integrate seamlessly with Supabase's Storage API, allowing developers to perform various operations on buckets and objects.
 
+For more detailed information and specialized documentation, refers to:
+
+- [supabase_storage](https://github.com/zoedsoupe/supabase_storage)
+- [supabase storage docs](https://hexdocs.pm/supabase_storage)
+
 ### Features
 
 1. **Bucket Operations**: Easily create, list, empty, or remove buckets.

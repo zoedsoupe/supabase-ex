@@ -1,12 +1,12 @@
 defmodule Supabase.MixProject do
   use Mix.Project
 
-  @version "0.2.1"
+  @version "0.2.3"
   @source_url "https://github.com/zoedsoupe/supabase"
 
   def project do
     [
-      app: :supabase,
+      app: :supabase_potion,
       version: @version,
       elixir: "~> 1.14",
       start_permanent: Mix.env() == :prod,
@@ -37,7 +37,6 @@ defmodule Supabase.MixProject do
 
   defp package do
     %{
-      name: "supabase_potion",
       licenses: ["MIT"],
       contributors: ["zoedsoupe"],
       links: %{

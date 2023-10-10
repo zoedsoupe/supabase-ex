@@ -116,6 +116,7 @@ defmodule Supabase.Client do
     |> cast_embed(:global, required: false)
     |> cast_embed(:auth, required: false)
     |> validate_required([:name])
+    |> maybe_put_assocs()
     |> apply_action(:parse)
   end
 
@@ -129,6 +130,24 @@ defmodule Supabase.Client do
         raise Ecto.InvalidChangesetError, changeset: changeset, action: :parse
     end
   end
+
+  defp maybe_put_assocs(%{valid?: false} = changeset), do: changeset
+
+  defp maybe_put_assocs(changeset) do
+    auth = get_change(changeset, :auth)
+    db = get_change(changeset, :db)
+    global = get_change(changeset, :global)
+
+    changeset
+    |> maybe_put_assoc(:auth, auth, %Auth{})
+    |> maybe_put_assoc(:db, db, %Db{})
+    |> maybe_put_assoc(:global, global, %Global{})
+  end
+
+  defp maybe_put_assoc(changeset, key, nil, default),
+    do: put_change(changeset, key, default)
+
+  defp maybe_put_assoc(changeset, _key, _assoc, _default), do: changeset
 
   def start_link(config) do
     name = Keyword.get(config, :name)
