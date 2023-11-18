@@ -1,9 +1,9 @@
 defmodule SupabaseTest do
   use ExUnit.Case, async: true
 
-  alias Supabase.MissingSupabaseConfig
   alias Supabase.Client
   alias Supabase.ClientRegistry
+  alias Supabase.MissingSupabaseConfig
 
   describe "init_client/1" do
     test "should return a valid PID on valid attrs" do

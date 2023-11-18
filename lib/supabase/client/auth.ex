@@ -73,7 +73,7 @@ defmodule Supabase.Client.Auth do
   defp put_storage_key(changeset, url) do
     host =
       url
-      |> URI.new()
+      |> URI.new!()
       |> Map.get(:host)
       |> String.split(".")
       |> List.first()

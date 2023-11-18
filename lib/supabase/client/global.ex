@@ -11,8 +11,8 @@ defmodule Supabase.Client.Global do
   use Ecto.Schema
   import Ecto.Changeset
 
-  @type t :: %__MODULE__{headers: Map.t()}
-  @type params :: %{headers: Map.t()}
+  @type t :: %__MODULE__{headers: map}
+  @type params :: %{headers: map}
 
   @primary_key false
   embedded_schema do

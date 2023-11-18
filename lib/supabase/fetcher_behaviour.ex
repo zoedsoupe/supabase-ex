@@ -17,5 +17,5 @@ defmodule Supabase.FetcherBehaviour do
   @callback delete(url, body, headers) :: result
   @callback upload(method, url, Path.t(), headers) :: result
   @callback stream(url, headers, keyword) :: {:ok, stream} | {:error, reason}
-            when stream: Stream.t()
+            when stream: Enumerable.t()
 end

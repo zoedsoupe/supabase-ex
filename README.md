@@ -1,5 +1,10 @@
 # Supabase Potion
 
+[![Hex.pm](https://img.shields.io/hexpm/v/supabase_potion.svg)](https://hex.pm/packages/supabase_potion)
+[![Downloads](https://img.shields.io/hexpm/dt/supabase_potion.svg)](https://hex.pm/packages/supabase_potion)
+[![Documentation](https://img.shields.io/badge/documentation-gray)](https://hexdocs.pm/supabase_potion)
+[![lint & test](https://github.com/zoedsoupe/supabase/actions/workflows/ci.yml/badge.svg)](https://github.com/zoedsoupe/supabase/actions/workflows/ci.yml)
+
 > Complete SDK and APIs integrations with Supabase
 
 This monorepo houses the collection of Elixir SDK packages for integrating with Supabase, the open-source Firebase alternative. Our goal is to offer developers a seamless integration experience with Supabase services using Elixir.

@@ -34,7 +34,7 @@ defmodule Supabase.Fetcher do
 
   @spec new_connection(atom, url, body, headers) :: Finch.Request.t()
         when url: String.t() | URI.t(),
-             body: binary | nil | {:stream, Stream.t()},
+             body: binary | nil | {:stream, Enumerable.t()},
              headers: list(tuple)
   defp new_connection(method, url, body, headers) do
     headers = merge_headers(default_headers(), headers)
@@ -286,7 +286,7 @@ defmodule Supabase.Fetcher do
 
   defp format_bad_request_error(%{"code" => 429, "msg" => msg}) do
     if String.starts_with?(msg, "For security purposes,") do
-      [seconds] = ~r/\d+/ |> Regex.run(msg) |> String.to_integer()
+      [seconds] = Regex.run(~r/\d+/, msg, return: :binary) || ["undefined"]
       {:error, {:rate_limit_until_seconds, seconds}}
     else
       case msg do

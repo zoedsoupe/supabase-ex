@@ -4,18 +4,18 @@ on:
   push:
     tags:
       - '*'
-  workflow_run:
-    workflows: [deps lint test]
-    types:
-      - completed
+
+env:
+  MIX_ENV: prod
 
 jobs:
   publish:
-    runs-ons: ubuntu-latest
-		matrix:
-			elixir: [1.15.7]
-			otp: [26.1.2]
-		steps:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        elixir: [1.15.7]
+        otp: [26.1.2]
+    steps:
     - uses: actions/checkout@v3
     - name: Set up Elixir
       uses: erlef/setup-beam@v1
