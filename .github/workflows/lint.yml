@@ -2,33 +2,78 @@ name: lint
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+  workflow_run:
+    workflows: [deps]
+    types:
+      - completed
+
+env:
+  MIX_ENV: test
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    env:
-      GHCR_USERNAME: ${{ github.actor }}
-      GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
-      FORCE_COLOR: 1
+  compile:
+    name: Check compile warning
+    run-ons: ubuntu-latest
+    strategy:
+      matrix:
+        elixir: [1.15.7]
+        otp: [26.1.2]
     steps:
       - uses: actions/checkout@v3
-      - name: Put back the git branch into git (Earthly uses it for tagging)
-        run: |
-          branch=""
-          if [ -n "$GITHUB_HEAD_REF" ]; then
-            branch="$GITHUB_HEAD_REF"
-          else
-            branch="${GITHUB_REF##*/}"
-          fi
-          git checkout -b "$branch" || true
-      - name: Docker Login
-        run: docker login https://ghcr.io --username "$GHCR_USERNAME" --password "$GHCR_TOKEN"
-      - name: Download latest earthly
-        run: "sudo /bin/sh -c 'wget https://github.com/earthly/earthly/releases/latest/download/earthly-linux-amd64 -O /usr/local/bin/earthly && chmod +x /usr/local/bin/earthly'"
-      - name: Earthly version
-        run: earthly --version
-      - name: Run lint
-        run: earthly -P +ci
+        with:
+          fetch-depth: 0
+      - uses: erlef/setup-beam@v1
+        with:
+          elixir-version: ${{ matrix.elixir }}
+          otp-version: ${{ matrix.otp }}
+      - run: mix compile --warnings-as-errors
+  format:
+    name: Code format
+    run-ons: ubuntu-latest
+    strategy:
+      matrix:
+        elixir: [1.15.7]
+        otp: [26.1.2]
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - uses: erlef/setup-elixir
+        with:
+          elixir-version: ${{ matrix.elixir }}
+          otp-version: ${{ matrix.otp }}
+      - run: mix format --check-formatted
+  credo:
+    name: Static Code Analysis
+    run-ons: ubuntu-latest
+    strategy:
+      matrix:
+        elixir: [1.15.7]
+        otp: [26.1.2]
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - uses: erlef/setup-elixir
+        with:
+          elixir-version: ${{ matrix.elixir }}
+          otp-version: ${{ matrix.otp }}
+      - run: mix credo --strict
+  dialyzer:
+    name: Dialyzer
+    run-ons: ubuntu-latest
+    strategy:
+      matrix:
+        elixir: [1.15.7]
+        otp: [26.1.2]
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - uses: erlef/setup-elixir
+        with:
+          elixir-version: ${{ matrix.elixir }}
+          otp-version: ${{ matrix.otp }}
+      - run: mix dialyzer --no-check

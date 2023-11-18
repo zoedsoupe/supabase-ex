@@ -113,16 +113,11 @@ defmodule Supabase do
   @spec init_client(params) :: {:ok, pid} | {:error, changeset}
         when params: Client.params()
   def init_client(%{} = opts) do
-    conn = Map.get(opts, :conn, %{})
-    opts = maybe_merge_config_from_application(conn, opts)
-
     with {:ok, opts} <- Client.parse(opts) do
       name = ClientRegistry.named(opts.name)
       client_opts = [name: name, client_info: opts]
       ClientSupervisor.start_child({Client, client_opts})
     end
-  rescue
-    _ -> {:error, :missing_config}
   end
 
   def init_client!(%{} = opts) do

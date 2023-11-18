@@ -1,24 +1,16 @@
-name: test
+name: deps
 
 on:
-	push:
-		branches: [main]
-	pull_request:
-  workflow_run:
-    workflows: [deps lint]
-    types:
-      - completed
+  push:
+  pull_request:
 
 env:
-	MIX_ENV: test
+  MIX_ENV: test
 
 jobs:
-	test:
-    name: Run tests
+  deps:
+    name: Dependencies
     runs-on: ubuntu-latest
-	  needs:
-			- deps
-			- lint
     strategy:
       matrix:
         elixir: [1.15.7]
@@ -31,5 +23,8 @@ jobs:
         with:
           elixir-version: ${{ matrix.elixir }}
           otp-version: ${{ matrix.otp }}
-			- run: mix test
-		
+      - run: |
+          mix local.rebar --force
+          mix local.hex --force
+          mix deps.get
+          mix deps.compile

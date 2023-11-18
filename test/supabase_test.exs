@@ -17,7 +17,7 @@ defmodule SupabaseTest do
         })
 
       assert pid == ClientRegistry.lookup(:test)
-      assert client = Client.retrieve_client(:test)
+      assert {:ok, client} = Client.retrieve_client(:test)
       assert client.name == :test
       assert client.conn.base_url == "https://test.supabase.co"
       assert client.conn.api_key == "test"
@@ -53,7 +53,7 @@ defmodule SupabaseTest do
         })
 
       assert pid == ClientRegistry.lookup(:test2)
-      assert client = Client.retrieve_client(:test2)
+      assert {:ok, client} = Client.retrieve_client(:test2)
       assert client.name == :test2
       assert client.conn.base_url == "https://test.supabase.co"
       assert client.conn.api_key == "test"

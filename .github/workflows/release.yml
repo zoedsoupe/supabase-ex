@@ -1,0 +1,30 @@
+name: release
+
+on:
+  push:
+    tags:
+      - '*'
+  workflow_run:
+    workflows: [deps lint test]
+    types:
+      - completed
+
+jobs:
+  publish:
+    runs-ons: ubuntu-latest
+		matrix:
+			elixir: [1.15.7]
+			otp: [26.1.2]
+		steps:
+    - uses: actions/checkout@v3
+    - name: Set up Elixir
+      uses: erlef/setup-beam@v1
+      with:
+        elixir-version: ${{ matrix.elixir }}
+        otp-version: ${{ matrix.otp }}
+    - name: Publish to Hex
+      uses: synchronal/hex-publish-action@v3
+      with:
+        name: supabase_potion
+        key: ${{ secrets.HEX_PM_KEY }}
+        tag-release: true
