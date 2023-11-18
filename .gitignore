@@ -29,3 +29,5 @@ result
 
 # Secrets files
 .env
+
+/.lexical/

@@ -228,9 +228,19 @@ defmodule Supabase.Fetcher do
   end
 
   defp merge_headers(some, other) do
+    some = if is_list(some), do: some, else: Map.to_list(some)
+    other = if is_list(other), do: other, else: Map.to_list(other)
+
     some
     |> Kernel.++(other)
     |> Enum.dedup_by(fn {name, _} -> name end)
+    |> Enum.reject(fn {_, v} -> is_nil(v) end)
+  end
+
+  def apply_client_headers(%Supabase.Client{} = client, token \\ nil, headers \\ []) do
+    client.conn.api_key
+    |> apply_headers(token || client.conn.access_token, client.global.headers)
+    |> merge_headers(headers)
   end
 
   defp format_response({:error, %{reason: reason}}) do
@@ -239,6 +249,14 @@ defmodule Supabase.Fetcher do
 
   defp format_response({:ok, %{status: 404}}) do
     {:error, :not_found}
+  end
+
+  defp format_response({:ok, %{status: 401}}) do
+    {:error, :unauthorized}
+  end
+
+  defp format_response({:ok, %{status: 204}}) do
+    {:ok, :no_body}
   end
 
   defp format_response({:ok, %{status: s, body: body}}) when s in 200..300 do
@@ -252,18 +270,41 @@ defmodule Supabase.Fetcher do
   end
 
   defp format_response({:ok, %{status: s, body: body}}) when s in 400..499 do
-    msg = Jason.decode!(body)["message"]
-
-    reason =
-      case msg do
-        "The resource was not found" -> :not_found
-        _ -> msg
-      end
-
-    {:error, reason}
+    {:error, format_bad_request_error(Jason.decode!(body))}
   end
 
   defp format_response({:ok, %{status: s}}) when s >= 500 do
     {:error, :server_error}
+  end
+
+  defp format_bad_request_error(%{"message" => msg}) do
+    case msg do
+      "The resource was not found" -> :not_found
+      _ -> msg
+    end
+  end
+
+  defp format_bad_request_error(%{"code" => 429, "msg" => msg}) do
+    if String.starts_with?(msg, "For security purposes,") do
+      [seconds] = ~r/\d+/ |> Regex.run(msg) |> String.to_integer()
+      {:error, {:rate_limit_until_seconds, seconds}}
+    else
+      case msg do
+        "Email rate limit exceeded" -> :email_rate_limit
+      end
+    end
+  end
+
+  defp format_bad_request_error(%{"error" => err, "error_description" => desc}) do
+    case {err, desc} do
+      {"invalid_grant", nil} -> :invalid_grant
+      {"invalid_grant", "Invalid login credentials"} -> {:invalid_grant, :invalid_credentials}
+      {"invalid_grant", "Email not confirmed"} -> {:invalid_grant, :email_not_confirmed}
+      {"invalid_grant", err} -> {:invalid_grant, err}
+    end
+  end
+
+  defp format_bad_request_error(err) do
+    err
   end
 end

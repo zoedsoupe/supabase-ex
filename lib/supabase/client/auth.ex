@@ -22,6 +22,7 @@ defmodule Supabase.Client.Auth do
   import Ecto.Changeset
 
   @type t :: %__MODULE__{
+          uri: String.t(),
           auto_refresh_token: boolean(),
           debug: boolean(),
           detect_session_in_url: boolean(),
@@ -45,6 +46,7 @@ defmodule Supabase.Client.Auth do
 
   @primary_key false
   embedded_schema do
+    field(:uri, :string, default: "/auth/v1")
     field(:auto_refresh_token, :boolean, default: true)
     field(:debug, :boolean, default: false)
     field(:detect_session_in_url, :boolean, default: true)

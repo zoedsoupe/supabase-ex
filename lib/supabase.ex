@@ -113,11 +113,16 @@ defmodule Supabase do
   @spec init_client(params) :: {:ok, pid} | {:error, changeset}
         when params: Client.params()
   def init_client(%{} = opts) do
+    conn = Map.get(opts, :conn, %{})
+    opts = maybe_merge_config_from_application(conn, opts)
+
     with {:ok, opts} <- Client.parse(opts) do
       name = ClientRegistry.named(opts.name)
       client_opts = [name: name, client_info: opts]
       ClientSupervisor.start_child({Client, client_opts})
     end
+  rescue
+    _ -> {:error, :missing_config}
   end
 
   def init_client!(%{} = opts) do
@@ -133,9 +138,33 @@ defmodule Supabase do
   defp maybe_merge_config_from_application(%{base_url: _, api_key: _}, opts), do: opts
 
   defp maybe_merge_config_from_application(%{}, opts) do
-    base_url = Application.get_env(:supabase, :supabase_url) || raise MissingSupabaseConfig, :url
-    api_key = Application.get_env(:supabase, :supabase_key) || raise MissingSupabaseConfig, :key
+    base_url =
+      Application.get_env(:supabase_potion, :supabase_base_url) ||
+        raise MissingSupabaseConfig, :url
+
+    api_key =
+      Application.get_env(:supabase_potion, :supabase_api_key) ||
+        raise MissingSupabaseConfig, :key
 
     Map.put(opts, :conn, %{base_url: base_url, api_key: api_key})
+  end
+
+  defmacro __using__(which) when is_atom(which) do
+    apply(__MODULE__, which, [])
+  end
+
+  def schema do
+    quote do
+      use Ecto.Schema
+      import Ecto.Changeset
+      alias __MODULE__
+
+      @opaque changeset :: Ecto.Changeset.t()
+
+      @callback changeset(__MODULE__.t(), map) :: changeset
+      @callback parse(map) :: {:ok, __MODULE__.t()} | {:error, changeset}
+
+      @optional_callbacks changeset: 2, parse: 1
+    end
   end
 end

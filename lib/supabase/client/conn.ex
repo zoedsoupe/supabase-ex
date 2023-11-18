@@ -13,8 +13,7 @@ defmodule Supabase.Client.Conn do
   the [client](https://supabase.com/docs/reference/javascript/initializing).
   """
 
-  use Ecto.Schema
-  import Ecto.Changeset
+  use Supabase, :schema
 
   @type t :: %__MODULE__{
           api_key: String.t(),
@@ -35,7 +34,7 @@ defmodule Supabase.Client.Conn do
     field(:base_url, :string)
   end
 
-  def changeset(schema, params) do
+  def changeset(schema \\ %__MODULE__{}, params) do
     schema
     |> cast(params, ~w[api_key access_token base_url]a)
     |> maybe_put_access_token()

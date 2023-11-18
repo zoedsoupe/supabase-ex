@@ -81,6 +81,8 @@ defmodule Supabase.Client do
 
   defguard is_client(v) when is_atom(v) or is_pid(v)
 
+  @type client :: atom | pid
+
   @type t :: %__MODULE__{
           name: atom,
           conn: Conn.t(),
@@ -159,21 +161,40 @@ defmodule Supabase.Client do
   defp maybe_parse(%__MODULE__{} = client), do: client
   defp maybe_parse(params), do: parse!(params)
 
-  @spec retrieve_client(name) :: Supabase.Client.t() | nil
+  @spec retrieve_client(name) :: {:ok, Supabase.Client.t()} | {:error, :client_not_started}
         when name: atom | pid
-  def retrieve_client(name) when is_atom(name) do
-    pid = ClientRegistry.lookup(name)
-    pid && Agent.get(pid, & &1)
+  def retrieve_client(source) do
+    if is_atom(source) do
+      pid = ClientRegistry.lookup(source)
+      {:ok, Agent.get(pid, & &1)}
+    else
+      {:ok, Agent.get(source, & &1)}
+    end
+  rescue
+    _ -> {:error, :client_not_started}
   end
 
-  def retrieve_client(pid) when is_pid(pid), do: Agent.get(pid, & &1)
-
-  @spec retrieve_connection(name) :: Conn.t() | nil
+  @spec retrieve_connection(name) :: {:ok, Conn.t()} | {:error, :client_not_started}
         when name: atom | pid
-  def retrieve_connection(name) when is_atom(name) do
-    pid = ClientRegistry.lookup(name)
-    pid && Agent.get(pid, &Map.get(&1, :conn))
+  def retrieve_connection(source) do
+    with {:ok, client} <- retrieve_client(source) do
+      client.conn
+    end
   end
 
-  def retrieve_connection(pid) when is_pid(pid), do: Agent.get(pid, &Map.get(&1, :conn))
+  def retrieve_base_url(%__MODULE__{conn: conn}) do
+    conn.base_url
+  end
+
+  def retrieve_url(%__MODULE__{} = client, uri) do
+    client
+    |> retrieve_base_url()
+    |> URI.merge(uri)
+  end
+
+  def retrieve_auth_url(%__MODULE__{auth: auth} = client, uri \\ "/") do
+    client
+    |> retrieve_url(auth.uri)
+    |> URI.append_path(uri)
+  end
 end
