@@ -30,4 +30,8 @@ result
 # Secrets files
 .env
 
+# LSP files
 /.lexical/
+
+# Nix files
+result
