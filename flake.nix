@@ -14,7 +14,7 @@
   in {
     packages."${system}".supabase-potion = beam-pkgs.buildMix {
       name = "supabase-potion";
-      version = "0.2.3";
+      version = "v0.2.3";
       src = ./.;
       beamDeps = with deps; [ecto jason finch];
     };
