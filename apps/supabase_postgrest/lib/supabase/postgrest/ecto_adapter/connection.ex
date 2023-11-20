@@ -10,7 +10,7 @@ defmodule Supabase.PostgREST.EctoAdapter.Connection do
   def start_link(_opts) do
     Agent.start_link(
       fn ->
-       %PostgREST{}
+        %PostgREST{}
       end,
       name: __MODULE__
     )
@@ -22,20 +22,20 @@ defmodule Supabase.PostgREST.EctoAdapter.Connection do
   end
 
   def update(opts) do
-    Agent.update(__MODULE__, fn rest -> 
-
-        attrs = opts
+    Agent.update(__MODULE__, fn rest ->
+      attrs =
+        opts
         |> Keyword.take(~w[host schema]a)
         |> Map.new()
-      |> Map.update!(:host, &URI.new!/1)
+        |> Map.update!(:host, &URI.new!/1)
 
       rest
-        |> PostgREST.changeset(attrs)
-        |> case do
-          {:ok, rest} -> rest
-          {:error, _} -> nil
-        end
-end)
+      |> PostgREST.changeset(attrs)
+      |> case do
+        {:ok, rest} -> rest
+        {:error, _} -> nil
+      end
+    end)
   end
 
   @spec apply_connection_change((PostgREST.t() -> PostgREST.t())) :: :ok

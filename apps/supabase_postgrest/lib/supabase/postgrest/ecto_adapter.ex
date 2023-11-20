@@ -7,7 +7,6 @@ defmodule Supabase.PostgREST.EctoAdapter do
   @behaviour Ecto.Adapter.Schema
   @behaviour Ecto.Adapter.Queryable
 
-
   @impl Ecto.Adapter
   defmacro __before_compile__(_), do: []
 

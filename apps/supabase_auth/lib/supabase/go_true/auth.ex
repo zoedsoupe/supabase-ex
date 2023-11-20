@@ -7,7 +7,7 @@ defmodule Supabase.GoTrue.Auth do
 
   @primary_key false
   embedded_schema do
-    field :url, :map
+    field(:url, :map)
     field(:expiry_margin, :integer, default: 10)
 
     embeds_one :mfa, MFA, primary_key: false do

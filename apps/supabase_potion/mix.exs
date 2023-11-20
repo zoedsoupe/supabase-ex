@@ -9,7 +9,6 @@ defmodule Supabase.Potion.MixProject do
       app: :supabase_potion,
       version: @version,
       build_path: "../../_build",
-      config_path: "../../config/config.exs",
       deps_path: "../../deps",
       lockfile: "../../mix.lock",
       elixir: "~> 1.14",

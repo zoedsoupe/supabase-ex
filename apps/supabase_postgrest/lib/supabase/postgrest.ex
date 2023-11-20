@@ -28,7 +28,7 @@ defmodule Supabase.PostgREST do
   @primary_key false
   embedded_schema do
     field(:host, :map, default: URI.new!("http://localhost:3000"))
-    field :path, :map, default: URI.new!(@default_path)
+    field(:path, :map, default: URI.new!(@default_path))
     field(:headers, {:map, :string})
     field(:schema, :string, default: "public")
     field(:method, Ecto.Enum, values: ~w[get post put delete]a, default: :get)

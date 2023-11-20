@@ -10,7 +10,6 @@ defmodule Supabase.Storage.MixProject do
       version: @version,
       elixir: "~> 1.15",
       build_path: "../../_build",
-      config_path: "../../config/config.exs",
       deps_path: "../../deps",
       lockfile: "../../mix.lock",
       start_permanent: Mix.env() == :prod,

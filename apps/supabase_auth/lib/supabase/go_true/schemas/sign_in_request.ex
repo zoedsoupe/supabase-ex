@@ -22,15 +22,15 @@ defmodule Supabase.GoTrue.Schemas.SignInRequest do
     end
   end
 
-	def create(attrs, nil) do
-        %__MODULE__{}
+  def create(attrs, nil) do
+    %__MODULE__{}
     |> cast(attrs, @required_fields ++ @optional_fields)
     |> validate_required(@required_fields)
     |> apply_action(:insert)
   end
 
   def create(attrs, %SignInWithPassword.Options{} = options) do
-		gotrue_meta = %__MODULE__.GoTrueMetaSecurity{captcha_token: options.captcha_token}
+    gotrue_meta = %__MODULE__.GoTrueMetaSecurity{captcha_token: options.captcha_token}
 
     %__MODULE__{}
     |> cast(attrs, @required_fields ++ @optional_fields)

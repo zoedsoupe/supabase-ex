@@ -30,11 +30,11 @@ defmodule Supabase.GoTrue.Schemas.SignUpRequest do
     |> cast(attrs, @required_fields ++ @optional_fields)
     |> validate_required(@required_fields)
     |> apply_action(:insert)
-    end
+  end
 
   def create(attrs, %SignUpWithPassword.Options{} = options) do
     go_true_meta = %__MODULE__.GoTrueMetaSecurity{captcha_token: options.captcha_token}
-    
+
     %__MODULE__{}
     |> cast(attrs, @required_fields ++ @optional_fields)
     |> put_assoc(:data, go_true_meta)

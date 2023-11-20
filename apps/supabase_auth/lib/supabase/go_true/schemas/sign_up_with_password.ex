@@ -40,7 +40,7 @@ defmodule Supabase.GoTrue.Schemas.SignUpWithPassword do
     |> validate_email_or_phone()
     |> validate_required([:password])
   end
-  
+
   defp options_changeset(options, attrs) do
     cast(options, attrs, ~w[email_redirect_to data captcha_token]a)
   end
@@ -55,10 +55,13 @@ defmodule Supabase.GoTrue.Schemas.SignUpWithPassword do
         |> add_error(:email, "or phone can't be blank")
         |> add_error(:phone, "or email can't be blank")
 
-      {email, nil} when is_binary(email) -> changeset
-      {nil, phone} when is_binary(phone) -> changeset
+      {email, nil} when is_binary(email) ->
+        changeset
 
-      {email, phone} when is_binary(email) and is_binary(phone) -> 
+      {nil, phone} when is_binary(phone) ->
+        changeset
+
+      {email, phone} when is_binary(email) and is_binary(phone) ->
         changeset
         |> add_error(:email, "can't be given with phone")
         |> add_error(:phone, "can't be given with email")

@@ -23,12 +23,12 @@ let
 
     castore = buildMix rec {
       name = "castore";
-      version = "1.0.3";
+      version = "1.0.4";
 
       src = fetchHex {
         pkg = "castore";
         version = "${version}";
-        sha256 = "680ab01ef5d15b161ed6a95449fac5c6b8f60055677a8e79acf01b27baa4390b";
+        sha256 = "9418c1b8144e11656f0be99943db4caf04612e3eaecefb5dae9a2a87565584f8";
       };
 
       beamDeps = [];
@@ -101,12 +101,12 @@ let
 
     ecto = buildMix rec {
       name = "ecto";
-      version = "3.10.3";
+      version = "3.11.0";
 
       src = fetchHex {
         pkg = "ecto";
         version = "${version}";
-        sha256 = "44bec74e2364d491d70f7e42cd0d690922659d329f6465e89feb8a34e8cd3433";
+        sha256 = "7769dad267ef967310d6e988e92d772659b11b09a0c015f101ce0fff81ce1f81";
       };
 
       beamDeps = [ decimal jason telemetry ];
@@ -315,6 +315,32 @@ let
         pkg = "nimble_pool";
         version = "${version}";
         sha256 = "80be3b882d2d351882256087078e1b1952a28bf98d0a287be87e4a24a710b67a";
+      };
+
+      beamDeps = [];
+    };
+
+    plug = buildMix rec {
+      name = "plug";
+      version = "1.15.2";
+
+      src = fetchHex {
+        pkg = "plug";
+        version = "${version}";
+        sha256 = "02731fa0c2dcb03d8d21a1d941bdbbe99c2946c0db098eee31008e04c6283615";
+      };
+
+      beamDeps = [ mime plug_crypto telemetry ];
+    };
+
+    plug_crypto = buildMix rec {
+      name = "plug_crypto";
+      version = "2.0.0";
+
+      src = fetchHex {
+        pkg = "plug_crypto";
+        version = "${version}";
+        sha256 = "53695bae57cc4e54566d993eb01074e4d894b65a3766f1c43e2c61a1b0f45ea9";
       };
 
       beamDeps = [];
