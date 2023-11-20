@@ -1,7 +1,7 @@
 defmodule Supabase.Potion.MixProject do
   use Mix.Project
 
-  @version "0.2.3"
+  @version "0.3.0"
   @source_url "https://github.com/zoedsoupe/supabase"
 
   def project do
