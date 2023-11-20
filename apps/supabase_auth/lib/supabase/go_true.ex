@@ -44,9 +44,9 @@ defmodule Supabase.GoTrue do
 
   defp sign_in_request(%SignInRequest{} = request, %Client{} = client) do
     headers = api_headers(client)
+    uri = Endpoints.sign_in(client, "password")
 
-    with uri = Endpoints.sign_in(client, "password"),
-         {:ok, response} <- Fetcher.post(uri, request, headers) do
+    with {:ok, response} <- Fetcher.post(uri, request, headers) do
       Session.parse(response, response["user"])
     end
   end
@@ -94,9 +94,9 @@ defmodule Supabase.GoTrue do
   defp sign_up_request(%SignUpRequest{} = request, %Client{} = client) do
     # add xform and redirect_to options to request
     headers = api_headers(client)
+    uri = Endpoints.sign_up(client)
 
-    with uri = Endpoints.sign_up(client),
-         {:ok, response} <- Fetcher.post(uri, request, headers) do
+    with {:ok, response} <- Fetcher.post(uri, request, headers) do
       User.parse(response)
     end
   end

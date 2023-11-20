@@ -32,4 +32,12 @@ defmodule Supabase.GoTrue.Endpoints do
   def create_user(%Client{} = client) do
     Client.retrieve_auth_url(client, "/admin/users")
   end
+
+  def delete_user(%Client{} = client, id) do
+    Client.retrieve_auth_url(client, "/admin/users/#{id}")
+  end
+
+  def list_users(%Client{} = client) do
+    Client.retrieve_auth_url(client, "/admin/users")
+  end
 end

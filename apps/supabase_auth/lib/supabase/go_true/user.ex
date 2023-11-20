@@ -70,9 +70,29 @@ defmodule Supabase.GoTrue.User do
     |> cast_embed(:factors, required: false)
   end
 
+  def multiple_changeset(user \\ %__MODULE__{}, attrs) do
+    user
+    |> cast(attrs, @required_fields ++ @optional_fields)
+    |> validate_required(@required_fields)
+  end
+
   def parse(attrs) do
     attrs
     |> changeset()
     |> apply_action(:parse)
+  end
+
+  def parse_list(list_attrs) do
+    results =
+      Enum.reduce_while(list_attrs, [], fn attrs, acc ->
+        changeset = multiple_changeset(attrs)
+
+        case result = apply_action(changeset, :parse) do
+          {:ok, user} -> {:cont, [user | acc]}
+          {:error, _} -> {:halt, result}
+        end
+      end)
+
+    if is_list(results), do: {:ok, results}, else: results
   end
 end

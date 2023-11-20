@@ -5,7 +5,7 @@ defmodule Supabase.GoTrue.Schemas.GenerateLink do
 
   @types ~w[signup invite magicLink recovery email_change_current email_change_new]a
 
-  @options_types %{data: :map, redirect_to: :map}
+  @options_types %{data: :map, redirect_to: :string}
 
   @base_types %{
     email: :string,
@@ -48,6 +48,7 @@ defmodule Supabase.GoTrue.Schemas.GenerateLink do
     {%{}, types}
     |> cast(attrs, Map.keys(types))
     |> validate_required([:email, :password, :type])
+    |> validate_redirect_to()
     |> validate_change(:type, fn _, type ->
       check_type(type, :signup)
     end)
@@ -58,8 +59,9 @@ defmodule Supabase.GoTrue.Schemas.GenerateLink do
     types = with_options()
 
     {%{}, types}
-    |> cast(attrs, Map.keys(types))
+    |> cast(attrs, Map.keys(types) -- [:data])
     |> validate_required([:email, :type])
+    |> validate_redirect_to()
     |> validate_inclusion(:type, ~w[invite magicLink]a)
     |> apply_action(:parse)
   end
@@ -68,7 +70,8 @@ defmodule Supabase.GoTrue.Schemas.GenerateLink do
     types = with_options()
 
     {%{}, types}
-    |> cast(attrs, Map.keys(types))
+    |> cast(attrs, Map.keys(types) -- [:data])
+    |> validate_redirect_to()
     |> validate_change(:type, fn _, type ->
       check_type(type, :recovery)
     end)
@@ -80,8 +83,9 @@ defmodule Supabase.GoTrue.Schemas.GenerateLink do
     types = with_options()
 
     {%{}, types}
-    |> cast(attrs, Map.keys(types))
+    |> cast(attrs, Map.keys(types) -- [:data])
     |> validate_required([:email, :type])
+    |> validate_redirect_to()
     |> validate_inclusion(:type, ~w[email_change_current email_change_new]a)
     |> apply_action(:parse)
   end
@@ -97,6 +101,19 @@ defmodule Supabase.GoTrue.Schemas.GenerateLink do
       []
     else
       [type: "need to be #{desired} for this schema"]
+    end
+  end
+
+  defp validate_redirect_to(%{valid?: false} = changeset), do: changeset
+
+  defp validate_redirect_to(changeset) do
+    if redirect_to = get_change(changeset, :redirect_to) do
+      case URI.new(redirect_to) do
+        {:ok, uri} -> put_change(changeset, :redirect_to, URI.to_string(uri))
+        {:error, error} -> add_error(changeset, :redirect_to, error)
+      end
+    else
+      changeset
     end
   end
 end
