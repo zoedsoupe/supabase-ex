@@ -3,7 +3,8 @@
 [![Hex.pm](https://img.shields.io/hexpm/v/supabase_potion.svg)](https://hex.pm/packages/supabase_potion)
 [![Downloads](https://img.shields.io/hexpm/dt/supabase_potion.svg)](https://hex.pm/packages/supabase_potion)
 [![Documentation](https://img.shields.io/badge/documentation-gray)](https://hexdocs.pm/supabase_potion)
-[![lint & test](https://github.com/zoedsoupe/supabase/actions/workflows/ci.yml/badge.svg)](https://github.com/zoedsoupe/supabase/actions/workflows/ci.yml)
+[![lint](https://github.com/zoedsoupe/supabase/actions/workflows/lint.yml/badge.svg)](https://github.com/zoedsoupe/supabase/actions/workflows/lint.yml)
+[![test](https://github.com/zoedsoupe/supabase/actions/workflows/test.yml/badge.svg)](https://github.com/zoedsoupe/supabase/actions/workflows/test.yml)
 
 > Complete SDK and APIs integrations with Supabase
 

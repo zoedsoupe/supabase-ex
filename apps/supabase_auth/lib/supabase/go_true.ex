@@ -3,16 +3,16 @@ defmodule Supabase.GoTrue do
 
   import Supabase.Client, only: [is_client: 1]
 
+  alias Supabase.Client
+  alias Supabase.Fetcher
   alias Supabase.GoTrue.Endpoints
   alias Supabase.GoTrue.PKCE
-  alias Supabase.GoTrue.User
-  alias Supabase.GoTrue.Session
   alias Supabase.GoTrue.Schemas.SignInRequest
   alias Supabase.GoTrue.Schemas.SignInWithPassword
   alias Supabase.GoTrue.Schemas.SignUpRequest
   alias Supabase.GoTrue.Schemas.SignUpWithPassword
-  alias Supabase.Client
-  alias Supabase.Fetcher
+  alias Supabase.GoTrue.Session
+  alias Supabase.GoTrue.User
 
   @opaque client :: pid | module
 

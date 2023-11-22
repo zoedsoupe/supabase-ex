@@ -1,0 +1,28 @@
+# Ignore git, but keep git HEAD and refs to access current commit hash if needed
+.git
+!.git/HEAD
+!.git/refs
+.github
+
+.elixir_ls
+.vscode
+
+# Mix artifacts
+/_build/
+/deps/
+*.ez
+
+# Generated on crash by the VM
+erl_crash.dump
+
+# Static artifacts - These should be fetched and built inside the Docker image
+/apps/plataforma_digital/assets/node_modules/
+/apps/plataforma_digital/priv/static/assets/
+/apps/plataforma_digital/priv/static/cache_manifest.json
+
+# Nix artifacts
+/.postgres/
+/.direnv/
+/.nix-*/
+result
+

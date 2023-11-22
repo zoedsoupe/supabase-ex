@@ -1,0 +1,34 @@
+name: lint
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      GHCR_USERNAME: ${{ github.actor }}
+      GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
+      FORCE_COLOR: 1
+    steps:
+      - uses: actions/checkout@v3
+      - name: Put back the git branch into git (Earthly uses it for tagging)
+        run: |
+          branch=""
+          if [ -n "$GITHUB_HEAD_REF" ]; then
+            branch="$GITHUB_HEAD_REF"
+          else
+            branch="${GITHUB_REF##*/}"
+          fi
+          git checkout -b "$branch" || true
+      - name: Docker Login
+        run: docker login https://ghcr.io --username "$GHCR_USERNAME" --password "$GHCR_TOKEN"
+      - name: Download latest earthly
+        run: "sudo /bin/sh -c 'wget https://github.com/earthly/earthly/releases/latest/download/earthly-linux-amd64 -O /usr/local/bin/earthly && chmod +x /usr/local/bin/earthly'"
+      - name: Earthly version
+        run: earthly --version
+      - name: Run lint
+        run: earthly -P --build-arg GITHUB_REPO=${{ github.repository }} +ci

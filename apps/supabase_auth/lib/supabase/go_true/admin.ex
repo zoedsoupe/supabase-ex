@@ -6,12 +6,12 @@ defmodule Supabase.GoTrue.Admin do
   alias Supabase.Client
   alias Supabase.Fetcher
   alias Supabase.GoTrue.AdminHandler
-  alias Supabase.GoTrue.User
   alias Supabase.GoTrue.Schemas.AdminUserParams
   alias Supabase.GoTrue.Schemas.GenerateLink
   alias Supabase.GoTrue.Schemas.InviteUserParams
   alias Supabase.GoTrue.Schemas.PaginationParams
   alias Supabase.GoTrue.Session
+  alias Supabase.GoTrue.User
 
   @behaviour Supabase.GoTrue.AdminBehaviour
 

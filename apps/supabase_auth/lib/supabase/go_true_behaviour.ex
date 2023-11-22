@@ -2,10 +2,10 @@ defmodule Supabase.GoTrueBehaviour do
   @moduledoc false
 
   alias Supabase.Client
-  alias Supabase.GoTrue.User
   alias Supabase.GoTrue.Schemas.SignInWithPassword
   alias Supabase.GoTrue.Schemas.SignUpWithPassword
   alias Supabase.GoTrue.Session
+  alias Supabase.GoTrue.User
 
   @type sign_in_response ::
           {:ok, Session.t()}

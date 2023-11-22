@@ -5,8 +5,8 @@ defmodule Supabase.GoTrue.User do
 
   import Ecto.Changeset
 
-  alias Supabase.GoTrue.User.Identity
   alias Supabase.GoTrue.User.Factor
+  alias Supabase.GoTrue.User.Identity
 
   @type t :: %__MODULE__{
           id: Ecto.UUID.t(),

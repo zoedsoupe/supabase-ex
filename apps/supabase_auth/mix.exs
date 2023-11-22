@@ -8,6 +8,7 @@ defmodule SupabaseAuth.MixProject do
     [
       app: :supabase_auth,
       version: @version,
+      config_path: "../../config",
       build_path: "../../_build",
       deps_path: "../../deps",
       lockfile: "../../mix.lock",
