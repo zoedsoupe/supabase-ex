@@ -7,9 +7,6 @@ defmodule Supabase.GoTrue.Schemas.SignInRequest do
 
   alias Supabase.GoTrue.Schemas.SignInWithPassword
 
-  @required_fields ~w[password]a
-  @optional_fields ~w[email phone]a
-
   @derive Jason.Encoder
   @primary_key false
   embedded_schema do
@@ -18,24 +15,37 @@ defmodule Supabase.GoTrue.Schemas.SignInRequest do
     field(:password, :string)
 
     embeds_one :gotrue_meta_security, GoTrueMetaSecurity, primary_key: false do
+      @derive Jason.Encoder
       field(:captcha_token, :string)
     end
   end
 
-  def create(attrs, nil) do
+  def create(%SignInWithPassword{} = signin) do
+    attrs = SignInWithPassword.to_sign_in_params(signin)
+    gotrue_meta = %__MODULE__.GoTrueMetaSecurity{captcha_token: signin.options.captcha_token}
+
     %__MODULE__{}
-    |> cast(attrs, @required_fields ++ @optional_fields)
-    |> validate_required(@required_fields)
+    |> cast(attrs, [:email, :phone, :password])
+    |> put_embed(:gotrue_meta_security, gotrue_meta, required: true)
+    |> validate_required([:password])
+    |> validate_required_inclusion([:email, :phone])
     |> apply_action(:insert)
   end
 
-  def create(attrs, %SignInWithPassword.Options{} = options) do
-    gotrue_meta = %__MODULE__.GoTrueMetaSecurity{captcha_token: options.captcha_token}
+  defp validate_required_inclusion(%{valid?: false} = c, _), do: c
 
-    %__MODULE__{}
-    |> cast(attrs, @required_fields ++ @optional_fields)
-    |> put_embed(:gotrue_meta_security, gotrue_meta, required: true)
-    |> validate_required(@required_fields)
-    |> apply_action(:insert)
+  defp validate_required_inclusion(changeset, fields) do
+    if Enum.any?(fields, &present?(changeset, &1)) do
+      changeset
+    else
+      changeset
+      |> add_error(:email, "at least an email or phone is required")
+      |> add_error(:phone, "at least an email or phone is required")
+    end
+  end
+
+  defp present?(changeset, field) do
+    value = get_change(changeset, field)
+    value && value != ""
   end
 end

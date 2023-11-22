@@ -40,27 +40,7 @@ defmodule Supabase.GoTrue.Session do
     %__MODULE__{}
     |> cast(attrs, @required_fields ++ @optional_fields)
     |> validate_required(@required_fields)
+    |> cast_embed(:user, required: false)
     |> apply_action(:parse)
-  end
-
-  @spec parse(map, User.t() | map) :: {:ok, t} | {:error, Ecto.Changeset.t()}
-  def parse(attrs, user) do
-    with {:ok, session} <- parse(attrs) do
-      session
-      |> change()
-      |> maybe_put_user_assoc(user)
-      |> apply_action(:parse)
-    end
-  end
-
-  defp maybe_put_user_assoc(changeset, %User{} = user) do
-    put_embed(changeset, :user, user, required: true)
-  end
-
-  defp maybe_put_user_assoc(changeset, %{} = user) do
-    case User.parse(user) do
-      {:ok, user} -> maybe_put_user_assoc(changeset, user)
-      {:error, changeset} -> changeset
-    end
   end
 end
