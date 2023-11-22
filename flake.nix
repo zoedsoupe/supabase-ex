@@ -60,7 +60,7 @@
         name = "supabase-potion";
         shellHook = "mkdir -p $PWD/.nix-mix";
         packages = with pkgs;
-          [beam-pkgs.elixir_1_15 mix2nix]
+          [beam-pkgs.elixir_1_15 mix2nix earthly]
           ++ lib.optional stdenv.isDarwin [
             darwin.apple_sdk.frameworks.CoreServices
             darwin.apple_sdk.frameworks.CoreFoundation

@@ -32,13 +32,34 @@ defmodule Supabase.GoTrue.Schemas.SignUpWithPassword do
     end
   end
 
+  def to_sign_up_params(%__MODULE__{} = signup) do
+    Map.take(signup, [:email, :password, :phone])
+  end
+
+  def to_sign_up_params(%__MODULE__{} = signup, code_challenge, code_method) do
+    signup
+    |> to_sign_up_params()
+    |> Map.merge(%{code_challange: code_challenge, code_challenge_method: code_method})
+  end
+
   @spec validate(map) :: Ecto.Changeset.t()
   def validate(attrs) do
     %__MODULE__{}
     |> cast(attrs, [:email, :password, :phone])
     |> cast_embed(:options, with: &options_changeset/2, required: false)
+    |> maybe_put_default_options()
     |> validate_email_or_phone()
     |> validate_required([:password])
+  end
+
+  defp maybe_put_default_options(%{valid?: false} = c), do: c
+
+  defp maybe_put_default_options(changeset) do
+    if get_embed(changeset, :options) do
+      changeset
+    else
+      put_embed(changeset, :options, %__MODULE__.Options{})
+    end
   end
 
   defp options_changeset(options, attrs) do
