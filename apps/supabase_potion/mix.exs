@@ -1,14 +1,13 @@
 defmodule Supabase.Potion.MixProject do
   use Mix.Project
 
-  @version "0.2.3"
+  @version "0.3.0"
   @source_url "https://github.com/zoedsoupe/supabase"
 
   def project do
     [
       app: :supabase_potion,
       version: @version,
-      config_path: "../../config",
       build_path: "../../_build",
       deps_path: "../../deps",
       lockfile: "../../mix.lock",
@@ -33,7 +32,7 @@ defmodule Supabase.Potion.MixProject do
       {:finch, "~> 0.16"},
       {:jason, "~> 1.4"},
       {:ecto, "~> 3.10"},
-      {:ex_doc, ">= 0.0.0", runtime: false, only: [:dev]},
+      {:ex_doc, ">= 0.0.0", runtime: false, only: [:dev, :prod]},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 1.3", only: [:dev], runtime: false}
     ]

@@ -106,12 +106,30 @@ defmodule Supabase.Fetcher do
        iex> Supabase.Fetcher.get("https://example.com")
        {:ok, %{"key" => "value"}}
   """
+  def get(url) do
+    get(url, nil, [], [])
+  end
+
+  def get(url, body) do
+    get(url, body, [], [])
+  end
+
+  def get(url, body, headers) do
+    get(url, body, headers, [])
+  end
+
   @impl true
-  def get(url, headers \\ []) do
-    :get
-    |> new_connection(url, nil, headers)
-    |> Finch.request(Supabase.Finch)
-    |> format_response()
+  def get(url, body, headers, opts) do
+    resp =
+      :get
+      |> new_connection(url, Jason.encode_to_iodata!(body), headers)
+      |> Finch.request(Supabase.Finch)
+
+    if opts[:resolve_json] do
+      format_response(resp)
+    else
+      resp
+    end
   end
 
   @doc """
@@ -243,23 +261,35 @@ defmodule Supabase.Fetcher do
     |> merge_headers(headers)
   end
 
-  defp format_response({:error, %{reason: reason}}) do
+  def get_header(%Finch.Response{headers: headers}, header) do
+    if h = Enum.find(headers, &(elem(&1, 0) == header)) do
+      elem(h, 1)
+    else
+      nil
+    end
+  end
+
+  def get_header(%Finch.Response{} = resp, header, default) do
+    get_header(resp, header) || default
+  end
+
+  def format_response({:error, %{reason: reason}}) do
     {:error, reason}
   end
 
-  defp format_response({:ok, %{status: 404}}) do
+  def format_response({:ok, %{status: 404}}) do
     {:error, :not_found}
   end
 
-  defp format_response({:ok, %{status: 401}}) do
+  def format_response({:ok, %{status: 401}}) do
     {:error, :unauthorized}
   end
 
-  defp format_response({:ok, %{status: 204}}) do
+  def format_response({:ok, %{status: 204}}) do
     {:ok, :no_body}
   end
 
-  defp format_response({:ok, %{status: s, body: body}}) when s in 200..300 do
+  def format_response({:ok, %{status: s, body: body}}) when s in 200..300 do
     result =
       case Jason.decode(body) do
         {:ok, body} -> body
@@ -269,11 +299,11 @@ defmodule Supabase.Fetcher do
     {:ok, result}
   end
 
-  defp format_response({:ok, %{status: s, body: body}}) when s in 400..499 do
+  def format_response({:ok, %{status: s, body: body}}) when s in 400..499 do
     {:error, format_bad_request_error(Jason.decode!(body))}
   end
 
-  defp format_response({:ok, %{status: s}}) when s >= 500 do
+  def format_response({:ok, %{status: s}}) when s >= 500 do
     {:error, :server_error}
   end
 

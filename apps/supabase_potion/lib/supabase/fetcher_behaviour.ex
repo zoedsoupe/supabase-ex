@@ -11,7 +11,8 @@ defmodule Supabase.FetcherBehaviour do
   @type method :: :get | :post
   @type result :: {:ok, response} | {:error, reason}
 
-  @callback get(url, headers) :: result
+  @callback get(url, body, headers, opts) :: result
+            when opts: [resolve_json: boolean]
   @callback post(url, body, headers) :: result
   @callback put(url, body, headers) :: result
   @callback delete(url, body, headers) :: result

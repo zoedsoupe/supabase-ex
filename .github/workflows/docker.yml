@@ -31,4 +31,4 @@ jobs:
       - name: Earthly version
         run: earthly --version
       - name: Run test and build
-        run: earthly -P --build-arg GITHUB_REPO=${{ github.repository }} --push +docker
+        run: earthly -P --build-arg MIX_ENV=dev --build-arg GITHUB_REPO=${{ github.repository }} --push +docker
