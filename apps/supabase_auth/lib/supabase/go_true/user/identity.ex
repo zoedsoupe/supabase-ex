@@ -40,4 +40,6 @@ defmodule Supabase.GoTrue.User.Identity do
     |> cast(attrs, @required_fields ++ @optional_fields)
     |> validate_required(@required_fields)
   end
+
+  def providers, do: @providers
 end
