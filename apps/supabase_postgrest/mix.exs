@@ -9,7 +9,6 @@ defmodule Supabase.PostgREST.MixProject do
       app: :supabase_postgrest,
       version: @version,
       elixir: "~> 1.15",
-      config_path: "../../config",
       build_path: "../../_build",
       deps_path: "../../deps",
       lockfile: "../../mix.lock",

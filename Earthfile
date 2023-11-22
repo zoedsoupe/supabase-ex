@@ -3,8 +3,8 @@ VERSION 0.7
 deps:
   ARG ELIXIR=1.15.7
   ARG OTP=26.1.2
+  ARG MIX_ENV=test
   FROM hexpm/elixir:${ELIXIR}-erlang-${OTP}-alpine-3.17.5
-  ENV MIX_ENV=test
   RUN apk add --no-cache build-base
   WORKDIR /src
   RUN mix local.rebar --force
@@ -28,7 +28,6 @@ ci:
 test:
   FROM +deps
   COPY mix.exs mix.lock ./
-  COPY --dir config ./
   COPY --dir apps ./
   RUN mix test
 
@@ -36,7 +35,6 @@ docker:
   FROM +deps
   ENV MIX_ENV=dev
   RUN mix deps.compile
-  COPY --dir config ./
   COPY --dir apps ./
   RUN mix compile
   CMD ["iex", "-S", "mix"]
