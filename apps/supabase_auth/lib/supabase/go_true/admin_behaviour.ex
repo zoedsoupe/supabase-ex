@@ -2,8 +2,8 @@ defmodule Supabase.GoTrue.AdminBehaviour do
   @moduledoc false
 
   alias Supabase.Client
-  alias Supabase.GoTrue.User
   alias Supabase.GoTrue.Session
+  alias Supabase.GoTrue.User
 
   @type scope :: :global | :local | :others
   @type invite_options :: %{data: map, redirect_to: String.t()}

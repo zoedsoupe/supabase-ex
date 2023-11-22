@@ -3,16 +3,16 @@ defmodule Supabase.GoTrue do
 
   import Supabase.Client, only: [is_client: 1]
 
+  alias Supabase.Client
+  alias Supabase.Fetcher
   alias Supabase.GoTrue.Endpoints
   alias Supabase.GoTrue.PKCE
-  alias Supabase.GoTrue.User
-  alias Supabase.GoTrue.Session
   alias Supabase.GoTrue.Schemas.SignInRequest
   alias Supabase.GoTrue.Schemas.SignInWithPassword
   alias Supabase.GoTrue.Schemas.SignUpRequest
   alias Supabase.GoTrue.Schemas.SignUpWithPassword
-  alias Supabase.Client
-  alias Supabase.Fetcher
+  alias Supabase.GoTrue.Session
+  alias Supabase.GoTrue.User
 
   @opaque client :: pid | module
 
@@ -44,9 +44,9 @@ defmodule Supabase.GoTrue do
 
   defp sign_in_request(%SignInRequest{} = request, %Client{} = client) do
     headers = api_headers(client)
+    uri = Endpoints.sign_in(client, "password")
 
-    with uri = Endpoints.sign_in(client, "password"),
-         {:ok, response} <- Fetcher.post(uri, request, headers) do
+    with {:ok, response} <- Fetcher.post(uri, request, headers) do
       Session.parse(response, response["user"])
     end
   end
@@ -94,9 +94,9 @@ defmodule Supabase.GoTrue do
   defp sign_up_request(%SignUpRequest{} = request, %Client{} = client) do
     # add xform and redirect_to options to request
     headers = api_headers(client)
+    uri = Endpoints.sign_up(client)
 
-    with uri = Endpoints.sign_up(client),
-         {:ok, response} <- Fetcher.post(uri, request, headers) do
+    with {:ok, response} <- Fetcher.post(uri, request, headers) do
       User.parse(response)
     end
   end

@@ -6,11 +6,11 @@ defmodule Supabase.GoTrue.Admin do
   alias Supabase.Client
   alias Supabase.Fetcher
   alias Supabase.GoTrue.Endpoints
-  alias Supabase.GoTrue.User
   alias Supabase.GoTrue.Schemas.AdminUserParams
   alias Supabase.GoTrue.Schemas.GenerateLink
   alias Supabase.GoTrue.Schemas.InviteUserParams
   alias Supabase.GoTrue.Session
+  alias Supabase.GoTrue.User
 
   @behaviour Supabase.GoTrue.AdminBehaviour
 
@@ -34,10 +34,10 @@ defmodule Supabase.GoTrue.Admin do
   @impl true
   def invite_user_by_email(client, email, options) when is_client(client) do
     with {:ok, client} <- Client.retrieve_client(client),
-         {:ok, options} <- InviteUserParams.parse(options),
-         redirect_to = %{"redirect_to" => options.redirect_to},
-         headers = Fetcher.apply_client_headers(client, nil, redirect_to),
-         endpoint = Endpoints.invite(client) do
+         {:ok, options} <- InviteUserParams.parse(options) do
+      redirect_to = %{"redirect_to" => options.redirect_to}
+      headers = Fetcher.apply_client_headers(client, nil, redirect_to)
+      endpoint = Endpoints.invite(client)
       Fetcher.post(endpoint, %{email: email, data: options.data}, headers)
     end
   end

@@ -1,4 +1,6 @@
 defmodule Supabase.GoTrue.Endpoints do
+  @moduledoc false
+
   alias Supabase.Client
 
   @grant_types ~w[password]
