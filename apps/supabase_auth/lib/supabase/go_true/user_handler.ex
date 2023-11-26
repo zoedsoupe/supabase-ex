@@ -5,6 +5,7 @@ defmodule Supabase.GoTrue.UserHandler do
   alias Supabase.Fetcher
   alias Supabase.GoTrue.PKCE
   alias Supabase.GoTrue.Schemas.SignInRequest
+  alias Supabase.GoTrue.Schemas.SignInWithIdToken
   alias Supabase.GoTrue.Schemas.SignInWithOauth
   alias Supabase.GoTrue.Schemas.SignInWithPassword
   alias Supabase.GoTrue.Schemas.SignUpRequest
@@ -15,6 +16,7 @@ defmodule Supabase.GoTrue.UserHandler do
   @sign_in_uri "/token"
   @sign_up_uri "/signup"
   @oauth_uri "/authorize"
+  @sso_uri "/sso"
 
   def get_user(%Client{} = client, access_token) do
     headers = Fetcher.apply_client_headers(client, access_token)
@@ -24,11 +26,37 @@ defmodule Supabase.GoTrue.UserHandler do
     |> Fetcher.get(nil, headers, resolve_json: true)
   end
 
-  @grant_types ~w[password]
+  def sign_in_with_sso(%Client{} = client, %{} = signin) when client.auth.flow_type == :pkce do
+    {challenge, method} = generate_pkce()
+
+    with {:ok, request} <- %{},
+         headers = Fetcher.apply_client_headers(client),
+         endpoint = Client.retrieve_auth_url(client, @sso_uri),
+         {:ok, response} <- Fetcher.post(endpoint, request, headers) do
+      {:ok, response["data"]["url"]}
+    end
+  end
+
+  def sign_in_with_sso(%Client{} = client, %{} = signin) do
+    with {:ok, request} <- %{},
+         headers = Fetcher.apply_client_headers(client),
+         endpoint = Client.retrieve_auth_url(client, @sso_uri),
+         {:ok, response} <- Fetcher.post(endpoint, request, headers) do
+      {:ok, response["data"]["url"]}
+    end
+  end
+
+  @grant_types ~w[password id_token]
 
   def sign_in_with_password(%Client{} = client, %SignInWithPassword{} = signin) do
     with {:ok, request} <- SignInRequest.create(signin) do
       sign_in_request(client, request, "password")
+    end
+  end
+
+  def sign_in_with_id_token(%Client{} = client, %SignInWithIdToken{} = signin) do
+    with {:ok, request} <- SignInRequest.create(signin) do
+      sign_in_request(client, request, "id_token")
     end
   end
 

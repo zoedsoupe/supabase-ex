@@ -4,6 +4,7 @@ defmodule Supabase.GoTrue do
   import Supabase.Client, only: [is_client: 1]
 
   alias Supabase.Client
+  alias Supabase.GoTrue.Schemas.SignInWithIdToken
   alias Supabase.GoTrue.Schemas.SignInWithOauth
   alias Supabase.GoTrue.Schemas.SignInWithPassword
   alias Supabase.GoTrue.Schemas.SignUpWithPassword
@@ -20,6 +21,14 @@ defmodule Supabase.GoTrue do
     with {:ok, client} <- Client.retrieve_client(client),
          {:ok, response} <- UserHandler.get_user(client, session.access_token) do
       User.parse(response)
+    end
+  end
+
+  def sign_in_with_id_token(client, credentials) when is_client(client) do
+    with {:ok, client} <- Client.retrieve_client(client),
+         {:ok, credentials} <- SignInWithIdToken.parse(credentials),
+         {:ok, response} <- UserHandler.sign_in_with_id_token(client, credentials) do
+      {:ok, response}
     end
   end
 

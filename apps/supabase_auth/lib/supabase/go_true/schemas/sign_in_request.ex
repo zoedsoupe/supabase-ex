@@ -5,6 +5,7 @@ defmodule Supabase.GoTrue.Schemas.SignInRequest do
 
   import Ecto.Changeset
 
+  alias Supabase.GoTrue.Schemas.SignInWithIdToken
   alias Supabase.GoTrue.Schemas.SignInWithPassword
 
   @derive Jason.Encoder
@@ -13,11 +14,26 @@ defmodule Supabase.GoTrue.Schemas.SignInRequest do
     field(:email, :string)
     field(:phone, :string)
     field(:password, :string)
+    field(:provider, :string)
+    field(:access_token, :string)
+    field(:nonce, :string)
+    field(:id_token, :string)
 
     embeds_one :gotrue_meta_security, GoTrueMetaSecurity, primary_key: false do
       @derive Jason.Encoder
       field(:captcha_token, :string)
     end
+  end
+
+  def create(%SignInWithIdToken{} = signin) do
+    attrs = SignInWithIdToken.to_sign_in_params(signin)
+    gotrue_meta = %__MODULE__.GoTrueMetaSecurity{captcha_token: signin.options.captcha_token}
+
+    %__MODULE__{}
+    |> cast(attrs, [:provider, :id_token, :access_token, :nonce])
+    |> put_embed(:gotrue_meta_security, gotrue_meta, required: true)
+    |> validate_required([:provider, :id_token])
+    |> apply_action(:insert)
   end
 
   def create(%SignInWithPassword{} = signin) do
