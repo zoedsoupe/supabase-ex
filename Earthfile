@@ -1,16 +1,17 @@
 VERSION 0.7
 
+ARG MIX_ENV=test
+
 deps:
   ARG ELIXIR=1.15.7
   ARG OTP=26.1.2
-  ARG MIX_ENV=test
   FROM hexpm/elixir:${ELIXIR}-erlang-${OTP}-alpine-3.17.5
   RUN apk add --no-cache build-base
   WORKDIR /src
   RUN mix local.rebar --force
   RUN mix local.hex --force
   COPY mix.exs mix.lock ./
-  COPY --dir apps . # check .earthlyignore
+  COPY --dir lib . # check .earthlyignore
   RUN mix deps.get
   RUN mix deps.compile --force
   RUN mix compile
@@ -28,15 +29,5 @@ ci:
 test:
   FROM +deps
   COPY mix.exs mix.lock ./
-  COPY --dir apps ./
+  COPY --dir lib ./
   RUN mix test
-
-docker:
-  FROM +deps
-  ENV MIX_ENV=dev
-  RUN mix deps.compile
-  COPY --dir apps ./
-  RUN mix compile
-  CMD ["iex", "-S", "mix"]
-  ARG GITHUB_REPO=zoedsoupe/supabase
-  SAVE IMAGE --push ghcr.io/$GITHUB_REPO:dev

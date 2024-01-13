@@ -1,4 +1,4 @@
-name: docker
+name: ci
 
 on:
   push:
@@ -28,7 +28,12 @@ jobs:
         run: docker login https://ghcr.io --username "$GHCR_USERNAME" --password "$GHCR_TOKEN"
       - name: Download latest earthly
         run: "sudo /bin/sh -c 'wget https://github.com/earthly/earthly/releases/latest/download/earthly-linux-amd64 -O /usr/local/bin/earthly && chmod +x /usr/local/bin/earthly'"
+
       - name: Earthly version
         run: earthly --version
-      - name: Run test and build
-        run: earthly -P --build-arg MIX_ENV=dev --build-arg GITHUB_REPO=${{ github.repository }} --push +docker
+
+      - name: Run CI
+        run: earthly -P +ci
+
+      - name: Run Tests
+        run: earthly -P +test
