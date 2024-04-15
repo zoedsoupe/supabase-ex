@@ -36,7 +36,7 @@ defmodule Supabase.Fetcher do
         when url: String.t() | URI.t(),
              body: binary | nil | {:stream, Enumerable.t()},
              headers: list(tuple)
-  defp new_connection(method, url, body, headers) do
+  def new_connection(method, url, body, headers) do
     headers = merge_headers(default_headers(), headers)
     Finch.build(method, url, headers, body)
   end
@@ -162,6 +162,34 @@ defmodule Supabase.Fetcher do
   """
   @impl true
   def put(url, body, headers \\ []) do
+    headers = merge_headers(headers, [{"content-type", "application/json"}])
+
+    :put
+    |> new_connection(url, Jason.encode_to_iodata!(body), headers)
+    |> Finch.request(Supabase.Finch)
+    |> format_response()
+  end
+
+  @doc """
+  Simple HEAD request that format the response to a map or
+  retrieve the error as `String.t()`
+  """
+  @impl true
+  def head(url, body, headers \\ []) do
+    headers = merge_headers(headers, [{"content-type", "application/json"}])
+
+    :head
+    |> new_connection(url, Jason.encode_to_iodata!(body), headers)
+    |> Finch.request(Supabase.Finch)
+    |> format_response()
+  end
+
+  @doc """
+  Simple PATCH request that format the response to a map or
+  retrieve the error as `String.t()`
+  """
+  @impl true
+  def patch(url, body, headers \\ []) do
     headers = merge_headers(headers, [{"content-type", "application/json"}])
 
     :put
