@@ -8,7 +8,7 @@ defmodule Supabase do
 
       def deps do
         [
-          {:supabase_potion, "~> 0.1"}
+          {:supabase_potion, "~> 0.3"}
         ]
       end
 
@@ -110,13 +110,13 @@ defmodule Supabase do
 
   @typep changeset :: Ecto.Changeset.t()
 
-  @spec init_client(params) :: {:ok, pid} | {:error, changeset}
+  @spec init_client(name :: atom, params) :: {:ok, pid} | {:error, changeset}
         when params: Client.params()
-  def init_client(%{} = opts) do
+  def init_client(name, opts \\ %{}) do
     conn = Map.get(opts, :conn, %{})
     opts = maybe_merge_config_from_application(conn, opts)
 
-    with {:ok, opts} <- Client.parse(opts) do
+    with {:ok, opts} <- Client.parse(Map.put(opts, :name, name)) do
       name = ClientRegistry.named(opts.name)
       client_opts = [name: name, client_info: opts]
       ClientSupervisor.start_child({Client, client_opts})
@@ -125,11 +125,11 @@ defmodule Supabase do
     _ -> Client.parse(opts)
   end
 
-  def init_client!(%{} = opts) do
+  def init_client!(name, %{} = opts \\ %{}) do
     conn = Map.get(opts, :conn, %{})
     opts = maybe_merge_config_from_application(conn, opts)
 
-    case init_client(opts) do
+    case init_client(name, opts) do
       {:ok, pid} -> pid
       {:error, changeset} -> raise Ecto.InvalidChangesetError, changeset: changeset, action: :init
     end

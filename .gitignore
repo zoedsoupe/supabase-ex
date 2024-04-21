@@ -36,5 +36,6 @@ result
 # Nix files
 result
 
-/.elixir_ls/
-/.elixir-tools/
+.elixir_ls/
+.elixir-tools/
+.lexical/

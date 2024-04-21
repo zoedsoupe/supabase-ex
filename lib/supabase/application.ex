@@ -7,12 +7,7 @@ defmodule Supabase.Application do
 
   @impl true
   def start(_start_type, _args) do
-    children = [
-      {Finch, @finch_opts},
-      if(manage_clients?(), do: Supabase.ClientSupervisor),
-      if(manage_clients?(), do: Supabase.ClientRegistry)
-    ]
-
+    children = [{Finch, @finch_opts}, (if manage_clients?(), do: Supabase.Supervisor)]
     opts = [strategy: :one_for_one, name: Supabase.Supervisor]
 
     children
@@ -21,6 +16,6 @@ defmodule Supabase.Application do
   end
 
   defp manage_clients? do
-    Application.get_env(:supabase, :manage_clients, true)
+    Application.get_env(:supabase_potion, :manage_clients, true)
   end
 end

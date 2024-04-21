@@ -92,7 +92,6 @@ defmodule Supabase.Client do
         }
 
   @type params :: %{
-          name: atom,
           conn: Conn.params(),
           db: Db.params(),
           global: Global.params(),
@@ -165,8 +164,11 @@ defmodule Supabase.Client do
         when name: atom | pid
   def retrieve_client(source) do
     if is_atom(source) do
-      pid = ClientRegistry.lookup(source)
-      {:ok, Agent.get(pid, & &1)}
+      if pid = ClientRegistry.lookup(source) do
+        {:ok, Agent.get(pid, & &1)}
+      else
+        {:ok, Agent.get(source, & &1)}
+      end
     else
       {:ok, Agent.get(source, & &1)}
     end
