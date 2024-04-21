@@ -8,8 +8,7 @@ defmodule SupabaseTest do
   describe "init_client/1" do
     test "should return a valid PID on valid attrs" do
       {:ok, pid} =
-        Supabase.init_client(%{
-          name: :test,
+        Supabase.init_client(:test, %{
           conn: %{
             base_url: "https://test.supabase.co",
             api_key: "test"
@@ -31,7 +30,7 @@ defmodule SupabaseTest do
                conn: {"can't be blank", [validation: :required]}
              ]
 
-      {:error, changeset} = Supabase.init_client(%{name: :test, conn: %{}})
+      {:error, changeset} = Supabase.init_client(:test, %{conn: %{}})
       assert conn = changeset.changes.conn
 
       assert conn.errors == [
@@ -44,8 +43,7 @@ defmodule SupabaseTest do
   describe "init_client!/1" do
     test "should return a valid PID on valid attrs" do
       pid =
-        Supabase.init_client!(%{
-          name: :test2,
+        Supabase.init_client!(:test2, %{
           conn: %{
             base_url: "https://test.supabase.co",
             api_key: "test"
@@ -61,13 +59,13 @@ defmodule SupabaseTest do
 
     test "should raise MissingSupabaseConfig on missing base_url" do
       assert_raise MissingSupabaseConfig, fn ->
-        Supabase.init_client!(%{name: :test, conn: %{api_key: "test"}})
+        Supabase.init_client!(:test, %{conn: %{api_key: "test"}})
       end
     end
 
     test "should raise MissingSupabaseConfig on missing api_key" do
       assert_raise MissingSupabaseConfig, fn ->
-        Supabase.init_client!(%{name: :test, conn: %{base_url: "https://test.supabase.co"}})
+        Supabase.init_client!(:test, %{conn: %{base_url: "https://test.supabase.co"}})
       end
     end
   end

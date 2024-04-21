@@ -1,4 +1,10 @@
 defmodule Supabase.Supervisor do
+  @moduledoc """
+  This module is reponsable to start the `Supabase.ClientRegistry`
+  and `Supabase.ClientSupervisor` processes to manage clients
+  automatically,
+  """
+
   use Supervisor
 
   def start_link(opts \\ []) do
