@@ -199,4 +199,12 @@ defmodule Supabase.Client do
     |> retrieve_url(auth.uri)
     |> URI.append_path(uri)
   end
+
+  @storage_endpoint "/storage/v1"
+
+  def retrieve_storage_url(%__MODULE__{} = client, uri \\ "/") do
+    client
+    |> retrieve_url(@storage_endpoint)
+    |> URI.append_path(uri)
+  end
 end
