@@ -37,15 +37,17 @@ defmodule Supabase.Fetcher do
              body: binary | nil | {:stream, Enumerable.t()},
              headers: list(tuple)
   def new_connection(method, url, body, headers) do
-    headers = merge_headers(default_headers(), headers)
+    headers = merge_headers(headers, default_headers())
     Finch.build(method, url, headers, body)
   end
 
   @spec default_headers :: list(tuple)
   defp default_headers do
     [
+      {"content-type", "application/json"},
       {"accept", "application/json"},
-      {"x-client-info", "supabase-fetch-elixir/#{version()}"}
+      {"x-client-info", "supabase-fetch-elixir/#{version()}"},
+      {"user-agent", "SupabasePotion/#{version()}"}
     ]
   end
 
@@ -279,7 +281,7 @@ defmodule Supabase.Fetcher do
 
     some
     |> Kernel.++(other)
-    |> Enum.dedup_by(fn {name, _} -> name end)
+    |> Enum.uniq_by(fn {name, _} -> name end)
     |> Enum.reject(fn {_, v} -> is_nil(v) end)
   end
 
