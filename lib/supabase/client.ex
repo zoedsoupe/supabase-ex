@@ -184,6 +184,22 @@ defmodule Supabase.Client do
     end
   end
 
+  def update_access_token(source, access_token) when is_atom(source) do
+    if pid = ClientRegistry.lookup(source) do
+      path = [Access.key(:conn), Access.key(:access_token)]
+      Agent.update(pid, &put_in(&1, path, access_token))
+    else
+      {:error, :client_not_started} 
+    end
+  end
+
+  def update_access_token(source, access_token) when is_pid(source) do
+    path = [Access.key(:conn), Access.key(:access_token)]
+    Agent.update(source, &put_in(&1, path, access_token))
+  rescue
+    _ -> {:error, :client_not_started}
+  end
+
   def retrieve_base_url(%__MODULE__{conn: conn}) do
     conn.base_url
   end

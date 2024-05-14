@@ -47,7 +47,7 @@ defmodule Supabase.Client.Conn do
 
     cond do
       not changeset.valid? -> changeset
-      token -> changeset
+      not is_nil(token) -> changeset
       true -> put_change(changeset, :access_token, api_key)
     end
   end

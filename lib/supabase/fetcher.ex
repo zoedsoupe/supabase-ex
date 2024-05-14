@@ -144,13 +144,13 @@ defmodule Supabase.Fetcher do
        {:ok, %{"key" => "value"}}
   """
   @impl true
-  def post(url, body \\ nil, headers \\ []) do
+  def post(url, body \\ nil, headers \\ [], opts \\ []) do
     headers = merge_headers(headers, [{"content-type", "application/json"}])
 
     :post
     |> new_connection(url, Jason.encode_to_iodata!(body), headers)
     |> Finch.request(Supabase.Finch)
-    |> format_response()
+    |> then(&if opts[:resolve_json], do: format_response(&1), else: &1)
   end
 
   @doc """
@@ -163,13 +163,13 @@ defmodule Supabase.Fetcher do
        {:ok, %{"key" => "value"}}
   """
   @impl true
-  def put(url, body, headers \\ []) do
+  def put(url, body, headers \\ [], opts \\ []) do
     headers = merge_headers(headers, [{"content-type", "application/json"}])
 
     :put
     |> new_connection(url, Jason.encode_to_iodata!(body), headers)
     |> Finch.request(Supabase.Finch)
-    |> format_response()
+    |> then(&if opts[:resolve_json], do: format_response(&1), else: &1)
   end
 
   @doc """
@@ -177,13 +177,13 @@ defmodule Supabase.Fetcher do
   retrieve the error as `String.t()`
   """
   @impl true
-  def head(url, body, headers \\ []) do
+  def head(url, body, headers \\ [], opts \\ []) do
     headers = merge_headers(headers, [{"content-type", "application/json"}])
 
     :head
     |> new_connection(url, Jason.encode_to_iodata!(body), headers)
     |> Finch.request(Supabase.Finch)
-    |> format_response()
+    |> then(&if opts[:resolve_json], do: format_response(&1), else: &1)
   end
 
   @doc """
@@ -191,13 +191,13 @@ defmodule Supabase.Fetcher do
   retrieve the error as `String.t()`
   """
   @impl true
-  def patch(url, body, headers \\ []) do
+  def patch(url, body, headers \\ [], opts \\ []) do
     headers = merge_headers(headers, [{"content-type", "application/json"}])
 
     :put
     |> new_connection(url, Jason.encode_to_iodata!(body), headers)
     |> Finch.request(Supabase.Finch)
-    |> format_response()
+    |> then(&if opts[:resolve_json], do: format_response(&1), else: &1)
   end
 
   @doc """
@@ -213,13 +213,13 @@ defmodule Supabase.Fetcher do
        {:error, :not_found}
   """
   @impl true
-  def delete(url, body \\ nil, headers \\ []) do
+  def delete(url, body \\ nil, headers \\ [], opts \\ []) do
     headers = merge_headers(headers, [{"content-type", "application/json"}])
 
     :delete
     |> new_connection(url, Jason.encode_to_iodata!(body), headers)
     |> Finch.request(Supabase.Finch)
-    |> format_response()
+    |> then(&if opts[:resolve_json], do: format_response(&1), else: &1)
   end
 
   @doc """
