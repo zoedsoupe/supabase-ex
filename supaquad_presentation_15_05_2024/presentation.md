@@ -1,5 +1,5 @@
 ---
-title: Elixir's new Supabase Client
+title: New features of the Elixir's Supabase Client
 author: zoedsoupe <zoey.spessanha@zeetech.io>
 ---
 
@@ -84,17 +84,18 @@ Solution: Supabase Potion
 
 ## Source Code
 
-- [Supabase Potion](https://github.com/zoedsoupe/supabase)
-- [Supabase Storage](https://github.com/zoedsoupe/supabase_storage)
-- [Supabase PostgREST](https://github.com/zoedsoupe/supabase_postgrest)
+- `Supabase Potion (supabase-ex)` - https://github.com/zoedsoupe/supabase-ex
+- `Supabase Storage (storage-ex)`- https://github.com/zoedsoupe/storage-ex
+- `Supabase PostgREST (postgrest-ex)` - https://github.com/zoedsoupe/postgrest-ex
+- `Supabase GoTrue (gotrue-ex)` - https://github.com/zoedsoupe/gotrue-ex
 
 ## Strengths
 
-- leverage `DynamicSupervisors` and `Registry`
-- implements a common used `Fecther` to low-level interaction to Supabase's APIs
+- manually can handle thousands of concurrent different clients
+- have a high level API to leverage Supabase's features
+- implements a common used `Fetcher` to low-level interaction to Supabase's APIs
 - implements structs for Supabase's entities like `Bucket` for Storage API, for example
 - it aims to be highly configurable
-- it can manage thousands of different clients
 
 ## How it works?
 
@@ -103,25 +104,67 @@ Firstly, you need to set basic config for the client in your `config.exs` or `ru
 ```elixir
 import Config
 
-config :supabase,
-  base_url: {:system, "SUPABASE_URL"},
-  api_key: {:system, "SUPABASE_KEY"}
+config :supabase_potion,
+  supabase_base_url: System.get_env("SUPABASE_URL"),
+  supabase_api_key: System.get_env("SUPABASE_KEY")
 ```
 After that you need to start some clients:
 
 ```elixir
-Supabase.init_client(%{name: MyClient})
+Supabase.init_client(MyClient, additional_config)
 {:ok, #PID<0.123.0>}
 ```
 
-## Starting clients manually
 
-Also, if you want to manage clients manually, you can:
+<!-- end_slide -->
 
-1. directly calls `Supabase.Client.start_link/1`
+
+How it works? Supabase GoTrue/Auth
+---
+
+Beside the usual usage of the library, like to sign in an user, create one if you're admin and some more, you can leverage the `gotrue-ex` integration with `Plug` and `Phoenix.LiveView`, which allows you to manage sessions, cookies and websocket authentication using Supabase's GoTrue methods!
+
+To achieve that you need to add an extra config to your `config.exs` file:
+```elixir
+config :supabase_gotrue,
+  endpoint: MyAppWeb.Endpoint,
+  signed_in_path: "/secret",
+  not_authenticated_path: "/login",
+  authentication_client: MyClient
+```
+
+With that you can use `GoTrue.Plug` functions and `GoTrue.LiveView` hooks, like:
 
 ```elixir
-{:ok, #PID<0.123.0>} = Supabase.Client.start_link(params)
+defmodule MyAppWeb.Router do
+  use Phoenix.Router
+
+  import Supabase.GoTrue.Plug
+  alias Supabase.GoTrue.LiveView, as: Supabase.LiveView
+
+  pipeline :browser do
+   # ...
+  end
+
+  scope "/", MyAppWeb do
+    pipe_through [:browser, :redirect_if_user_is_authenticated]
+  end
+
+  scope "/", MyAppWeb do
+    pipe_through [:browser, :require_authenticated_user]
+    get "/super-secret", MyController, :show
+  end
+
+  scope "/", MyAppWeb do
+    pipe_through :browser
+
+    live_session :require_authentication,
+      on_mount: [{Supabase.LiveView, :ensure_authenticated}] do
+      live "/secret", MyLiveView, :show
+    end
+  end
+
+end
 ```
 
 <!-- end_slide -->
@@ -129,30 +172,42 @@ Also, if you want to manage clients manually, you can:
 Solution: Supabase Potion
 ---
 
-## Starting clients manually
-
-Firstly: manage the supervisor
+You can also create specialized clients to use on your application. For example, let
+say you wan to use PostgREST and GoTrue clients. After setting up the `supabase_potion` config you can create a new file called `supabase.ex`, like:
 
 ```elixir
-defmodule MyApp.Application do
-  use Application
+defmodule MyApp.Supabase do
+  defmodule Auth do
+    use Supabase.GoTrue, client: MyClient
+  end
 
-  def start(_type, _args) do
-    children = [
-      {Supabase.ClientSupervisor, []}
-    ]
+  defmodule PostgREST do
+    use Supabase.GoTrue, client: MyClient
+  end
 
-    opts = [strategy: :one_for_one, name: MyApp.Supervisor]
+  def start_link(_opts) do
+    children = [__MODULE__.Auth, __MODULE__.PostgREST]
+    opts = [strategy: :one_for_one, name: __MODULE__]
     Supervisor.start_link(children, opts)
+  end
+
+  def child_spec(opts) do
+    %{
+      id: __MODULE__,
+      start: {__MODULE__, :start_link, [opts]},
+      type: :worker,
+      restart: :permanent,
+      shutdown: 500
+    }
   end
 end
 ```
 
-and then start clients:
+Then you can easily use your specialized client to interact with Supabase's features, like:
 
 ```elixir
-Supabase.ClientSupervisor.start_child({Supabase.Client, params})
-{:ok, #PID<0.123.0>}
+MyApp.Supabase.Auth.get_user(%Session{})
+{:ok, %User{}}
 ```
 
 <!-- end_slide -->
@@ -200,7 +255,10 @@ Supabase.Storage.list_buckets(MyClient) # can also receive the client PID
 What are already implemented?
 ---
 
-## Supabase Clients
+<!-- column_layout: [3, 3] -->
+
+<!-- column: 0 -->
+## Supabase Potion
 
 The "parent" application that defines:
 - internal management of multiple clients
@@ -224,6 +282,36 @@ The "parent" application that defines:
   - downloads one to disk (eager and lazy)
   - create signed url
 
+<!-- column: 1 -->
+
+## Supabase Auth
+- get user from a session
+- sign in with id token
+- verify OTP
+- sign in with OAuth
+- sign in with OTP
+- sign in with SSO
+- sign in with email and password
+- sign up a user
+- reset password for email
+- update current logged-in user
+- plugs/hooks for both plug based applications (aka Phoenix) and Live View for authentication
+
+### Admin-only Features:
+- sign out a user
+- invite a user by email
+- update a user by ID
+- generate link for OTP/recovery, etc.
+- create a user
+- delete a user
+- get user by ID
+- list users with pagination
+
+## Supabase PostgREST
+- complete API implementation for those who do not want to use Ecto DSLs
+
+<!-- reset_layout -->
+
 <!-- end_slide -->
 
 What are coming next?
@@ -232,16 +320,11 @@ What are coming next?
 ## Supabase PostgREST
 
 - integration with `Ecto` via custom adapter to be able to use `Ecto.Query` easily
-- complete API implementation query language if one do not want to use `Ecto` DSLs
 
 ## Supabase Auth
 
-- managment for multiple authentication methods
-  - email + password
-  - oauth2
-  - magic links
-  - SAML/SSO
-- plugs/hooks for both plug based applications (aka Phoenix) and Live View for authentication
+- Anonymous sign in
+- Improvements on the PKCE authentication flow
 
 ## Supabase UI
 
@@ -252,6 +335,26 @@ What are coming next?
 
 - basic integration via API
 - integrate with the API, produce events as Process based message passing (or PubSub)
+
+<!-- end_slide -->
+
+Live Coding!
+---
+
+<!-- column_layout: [1, 3, 1] -->
+
+<!-- column: 1 -->
+![That's all folks](../assets/live_coding.png)
+
+<!-- reset_layout -->
+
+## Project
+The PEA Pescarte digital platform is a social-environmental voluntary project that aims to integration fisherman communities into the rest of society based on cultural and technical formation!
+
+I'm leadershipping the tech/engineering team that is formed by 5 developers! And we decided to use Supabase to:
+- Authentication
+- Managed PostgreSQL
+- Storage
 
 <!-- end_slide -->
 
