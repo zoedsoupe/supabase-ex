@@ -24,7 +24,7 @@ defmodule Supabase do
 
   You can set up the library on your `config.exs`:
 
-      config :supabase, manage_clients: false
+      config :supabase_potion, manage_clients: false
 
   ### Clients
 
@@ -62,7 +62,7 @@ defmodule Supabase do
 
   Notice that this way to start a Client is not recommended, since you will need to manage the `Supabase.Client` manually. Instead, you can use `Supabase.init_client!/1`, passing the Client options:
 
-      iex> Supabase.Client.init_client!(%{conn: %{base_url: "<supa-url>", api_key: "<supa-key>"}})
+      iex> Supabase.init_client!(%{conn: %{base_url: "<supa-url>", api_key: "<supa-key>"}})
       {:ok, #PID<0.123.0>}
 
   ## Acknowledgements

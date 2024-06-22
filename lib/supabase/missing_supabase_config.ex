@@ -16,7 +16,7 @@ defmodule Supabase.MissingSupabaseConfig do
     Remember to set the environment variables SUPABASE_BASE_URL and SUPABASE_API_KEY
     if you choose this option. Otherwise you can pass the values directly to the config file.
 
-    Alternatively you can pass the values directly to the `Supabase.Client.init_client!/1` function:
+    Alternatively you can pass the values directly to the `Supabase.init_client!/1` function:
 
         iex> Supabase.init_client!(%{
               conn: %{
