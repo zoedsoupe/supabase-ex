@@ -49,7 +49,7 @@ The Supabase Elixir SDK provides a flexible way to manage `Supabase.Client` inst
 You can start a client using the `Supabase.Client.start_link/1` function. However, it's recommended to use `Supabase.init_client!/1`, which allows you to pass client options and automatically manage `Supabase.Client` processes.
 
 ```elixir
-iex> Supabase.Client.init_client!(%{conn: %{base_url: "<supa-url>", api_key: "<supa-key>"}})
+iex> Supabase.init_client!(%{conn: %{base_url: "<supa-url>", api_key: "<supa-key>"}})
 {:ok, #PID<0.123.0>}
 ```
 
@@ -63,7 +63,7 @@ import Config
 config :supabase,
   manage_clients: false,
   supabase_base_url: System.fetch_env!("SUPABASE_BASE_URL"),
-  supabase_api_key: System.fetch_env!("SUPABASE_API_KEY"),
+  supabase_api_key: System.fetch_env!("SUPABASE_API_KEY")
 ```
 
 - `supabase_base_url`: The base URL of your Supabase project! More information on how to find it can be seen on the [next section](#how-to-find-my-supabase-base-url?)
@@ -98,7 +98,7 @@ defmodule MyApp.Application do
       # rest of your Supervisor's children...
       # is recommended to start registry **before**
       # the Supervsior
-      Supabase.ClientRegistry
+      Supabase.ClientRegistry,
       Supabase.ClientSupervisor
     ]
   end
