@@ -238,7 +238,7 @@ defmodule Supabase.Fetcher do
   """
   @impl true
   def upload(method, url, file, headers \\ []) do
-    body_stream = File.stream!(file, [{:read_ahead, 4096}], 1024)
+    body_stream = File.stream!(file, 4096, encoding: :utf8)
     %File.Stat{size: content_length} = File.stat!(file)
     content_headers = [{"content-length", to_string(content_length)}]
     headers = merge_headers(headers, content_headers)
@@ -320,17 +320,13 @@ defmodule Supabase.Fetcher do
   end
 
   def format_response({:ok, %{status: s, body: body}}) when s in 200..300 do
-    result =
-      case Jason.decode(body) do
-        {:ok, body} -> body
-        {:error, _} when is_binary(body) -> body
-      end
-
-    {:ok, result}
+    Jason.decode(body)
   end
 
   def format_response({:ok, %{status: s, body: body}}) when s in 400..499 do
-    {:error, format_bad_request_error(Jason.decode!(body))}
+    with {:ok, result} <- Jason.decode(body) do
+      {:error, format_bad_request_error(result)}
+    end
   end
 
   def format_response({:ok, %{status: s}}) when s >= 500 do
@@ -351,6 +347,7 @@ defmodule Supabase.Fetcher do
     else
       case msg do
         "Email rate limit exceeded" -> :email_rate_limit
+        _ -> msg
       end
     end
   end

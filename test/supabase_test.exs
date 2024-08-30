@@ -1,37 +1,36 @@
 defmodule SupabaseTest do
   use ExUnit.Case, async: true
 
+  import Ecto.Changeset
+
   alias Supabase.Client
-  alias Supabase.ClientRegistry
   alias Supabase.MissingSupabaseConfig
 
   describe "init_client/1" do
-    test "should return a valid PID on valid attrs" do
-      {:ok, pid} =
-        Supabase.init_client(:test, %{
+    test "should return a valid client on valid attrs" do
+      {:ok, %Client{} = client} =
+        Supabase.init_client(%{
           conn: %{
             base_url: "https://test.supabase.co",
             api_key: "test"
           }
         })
 
-      assert pid == ClientRegistry.lookup(:test)
-      assert {:ok, client} = Client.retrieve_client(:test)
-      assert client.name == :test
       assert client.conn.base_url == "https://test.supabase.co"
       assert client.conn.api_key == "test"
     end
 
     test "should return an error changeset on invalid attrs" do
       {:error, changeset} = Supabase.init_client(%{})
+      conn = get_change(changeset, :conn)
 
-      assert changeset.errors == [
-               name: {"can't be blank", [validation: :required]},
-               conn: {"can't be blank", [validation: :required]}
+      assert conn.errors == [
+               api_key: {"can't be blank", [validation: :required]},
+               base_url: {"can't be blank", [validation: :required]}
              ]
 
-      {:error, changeset} = Supabase.init_client(:test, %{conn: %{}})
-      assert conn = changeset.changes.conn
+      {:error, changeset} = Supabase.init_client(%{conn: %{}})
+      conn = get_change(changeset, :conn)
 
       assert conn.errors == [
                api_key: {"can't be blank", [validation: :required]},
@@ -41,31 +40,28 @@ defmodule SupabaseTest do
   end
 
   describe "init_client!/1" do
-    test "should return a valid PID on valid attrs" do
-      pid =
-        Supabase.init_client!(:test2, %{
+    test "should return a valid client on valid attrs" do
+      assert %Client{} = client =
+        Supabase.init_client!(%{
           conn: %{
             base_url: "https://test.supabase.co",
             api_key: "test"
           }
         })
 
-      assert pid == ClientRegistry.lookup(:test2)
-      assert {:ok, client} = Client.retrieve_client(:test2)
-      assert client.name == :test2
       assert client.conn.base_url == "https://test.supabase.co"
       assert client.conn.api_key == "test"
     end
 
     test "should raise MissingSupabaseConfig on missing base_url" do
       assert_raise MissingSupabaseConfig, fn ->
-        Supabase.init_client!(:test, %{conn: %{api_key: "test"}})
+        Supabase.init_client!(%{conn: %{api_key: "test"}})
       end
     end
 
     test "should raise MissingSupabaseConfig on missing api_key" do
       assert_raise MissingSupabaseConfig, fn ->
-        Supabase.init_client!(:test, %{conn: %{base_url: "https://test.supabase.co"}})
+        Supabase.init_client!(%{conn: %{base_url: "https://test.supabase.co"}})
       end
     end
   end

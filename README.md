@@ -11,7 +11,7 @@ To install the base SDK:
 ```elixir
 def deps do
   [
-    {:supabase_potion, "~> 0.3"}
+    {:supabase_potion, "~> 0.4"}
   ]
 end
 ```

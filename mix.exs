@@ -1,16 +1,13 @@
-defmodule Supabase.Potion.MixProject do
+defmodule Supabase.MixProject do
   use Mix.Project
 
-  @version "0.3.7"
-  @source_url "https://github.com/zoedsoupe/supabase"
+  @version "0.4.1"
+  @source_url "https://github.com/zoedsoupe/supabase-ex"
 
   def project do
     [
       app: :supabase_potion,
       version: @version,
-      build_path: "../../_build",
-      deps_path: "../../deps",
-      lockfile: "../../mix.lock",
       elixir: "~> 1.14",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
