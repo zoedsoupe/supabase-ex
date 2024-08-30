@@ -2,7 +2,7 @@
   description = "Supabase SDK for Elixir";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-23.11";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     flake-parts.url = "github:hercules-ci/flake-parts";
     systems.url = "github:nix-systems/default";
   };
@@ -19,9 +19,9 @@
         system,
         ...
       }: let
-        inherit (pkgs.beam.interpreters) erlangR26;
+        inherit (pkgs.beam.interpreters) erlang_27;
         inherit (pkgs.beam) packagesWith;
-        beam = packagesWith erlangR26;
+        beam = packagesWith erlang_27;
       in {
         _module.args.pkgs = import inputs.nixpkgs {
           inherit system;
@@ -31,7 +31,7 @@
           mkShell {
             name = "supabase-ex";
             packages = with pkgs;
-              [beam.elixir_1_16]
+              [beam.elixir_1_17]
               ++ lib.optional stdenv.isLinux [inotify-tools]
               ++ lib.optional stdenv.isDarwin [
                 darwin.apple_sdk.frameworks.CoreServices

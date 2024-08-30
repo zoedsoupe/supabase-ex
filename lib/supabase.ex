@@ -4,7 +4,7 @@ defmodule Supabase do
 
   ## Installation
 
-  The package can be installed by adding `supabase` to your list of dependencies in `mix.exs`:
+  The package can be installed by adding `supabase_potion` to your list of dependencies in `mix.exs`:
 
       def deps do
         [
@@ -28,15 +28,12 @@ defmodule Supabase do
 
   ### Clients
 
-  A `Supabase.Client` is an Agent that holds general information about Supabase, that can be used to intereact with any of the children integrations, for example: `Supabase.Storage` or `Supabase.UI`.
-
-  Also a `Supabase.Client` holds a list of `Supabase.Connection` that can be used to perform operations on different buckets, for example.
+  A `Supabase.Client`  holds general information about Supabase, that can be used to intereact with any of the children integrations, for example: `Supabase.Storage` or `Supabase.UI`.
 
   `Supabase.Client` is defined as:
 
-  - `:name` - the name of the client, started by `start_link/1`
   - `:conn` - connection information, the only required option as it is vital to the `Supabase.Client`.
-    - `:base_url` - The base url of the Supabase API, it is usually in the form `https://<app-name>.supabase.io`.
+    - `:base_url` - The base url of the Supabase API, it is usually in the form `https://<app-name>.supabase.co`.
     - `:api_key` - The API key used to authenticate requests to the Supabase API.
     - `:access_token` - Token with specific permissions to access the Supabase API, it is usually the same as the API key.
   - `:db` - default database options
@@ -55,27 +52,21 @@ defmodule Supabase do
 
   ## Starting a Client
 
-  You then can start a Client calling `Supabase.Client.start_link/1`:
+  You then can start a Client calling `Supabase.init_client/1`:
 
-      iex> Supabase.Client.start_link(name: :my_client, client_info: %{db: %{schema: "public"}})
-      {:ok, #PID<0.123.0>}
-
-  Notice that this way to start a Client is not recommended, since you will need to manage the `Supabase.Client` manually. Instead, you can use `Supabase.init_client!/1`, passing the Client options:
-
-      iex> Supabase.Client.init_client!(%{conn: %{base_url: "<supa-url>", api_key: "<supa-key>"}})
-      {:ok, #PID<0.123.0>}
+      iex> Supabase.init_client(%{db: %{schema: "public"}})
+      {:ok, %Supabase.Client{}}
 
   ## Acknowledgements
 
-  This package represents the complete SDK for Supabase. That means
-  that it includes all of the functionality of the Supabase client integrations, as:
+  This package represents the base SDK for Supabase. That means
+  that it not includes all of the functionality of the Supabase client integrations, so you need to install each feature separetely, as:
 
-  - `Supabase.Fetcher`
-  - `Supabase.Storage`
-  - `supabase-postgrest` - TODO
-  - `supabase-realtime` - TODO
-  - `supabase-auth`- TODO
-  - `supabase-ui` - TODO
+  - [auth](https://github.com/zoedsoupe/gotrue-ex)
+  - [storage](https://github.com/zoedsoupe/storage-ex)
+  - [postgrest](https://github.com/zoedsoupe/postgrest-ex)
+  - `realtime` - TODO
+  - `ui` - TODO
 
   ### Supabase Storage
 
@@ -96,57 +87,60 @@ defmodule Supabase do
   ### Supabase UI
 
   Supabase UI is a set of UI components that help you quickly build Supabase-powered applications. It is built on top of Tailwind CSS and Headless UI, and is fully customizable. The package provides `Phoenix.LiveView` components!
-
-  ### Supabase Fetcher
-
-  Supabase Fetcher is a customized HTTP client for Supabase. Mainly used in Supabase Potion. If you want a complete control on how to make requests to any Supabase API, you would use this package directly.
   """
 
   alias Supabase.Client
-  alias Supabase.ClientRegistry
-  alias Supabase.ClientSupervisor
 
   alias Supabase.MissingSupabaseConfig
 
   @typep changeset :: Ecto.Changeset.t()
 
-  @spec init_client(name :: atom, params) :: {:ok, pid} | {:error, changeset}
-        when params: Client.params()
-  def init_client(name, opts \\ %{}) do
-    conn = Map.get(opts, :conn, %{})
-    opts = maybe_merge_config_from_application(conn, opts)
-
-    with {:ok, opts} <- Client.parse(Map.put(opts, :name, name)) do
-      name = ClientRegistry.named(opts.name)
-      client_opts = [name: name, client_info: opts]
-      ClientSupervisor.start_child({Client, client_opts})
-    end
-  rescue
-    _ -> Client.parse(opts)
+  @spec init_client(Client.params() | %{}) :: {:ok, Client.t()} | {:error, changeset}
+  def init_client(opts \\ %{}) do
+    opts
+    |> Map.get(:conn, %{})
+    |> maybe_merge_config_from_application(opts)
+    |> Client.parse()
   end
 
-  def init_client!(name, %{} = opts \\ %{}) do
+  def init_client!(%{} = opts \\ %{}) do
     conn = Map.get(opts, :conn, %{})
     opts = maybe_merge_config_from_application(conn, opts)
 
-    case init_client(name, opts) do
-      {:ok, pid} -> pid
-      {:error, changeset} -> raise Ecto.InvalidChangesetError, changeset: changeset, action: :init
+    case init_client(opts) do
+      {:ok, client} ->
+        client
+
+      {:error, changeset} ->
+        errors = errors_on_changeset(changeset)
+
+        if "can't be blank" in get_in(errors, [:conn, :api_key]) do
+          raise MissingSupabaseConfig, :key
+        end
+
+        if "can't be blank" in get_in(errors, [:conn, :base_url]) do
+          raise MissingSupabaseConfig, :url
+        end
+
+        raise Ecto.InvalidChangesetError, changeset: changeset, action: :init
     end
   end
 
   defp maybe_merge_config_from_application(%{base_url: _, api_key: _}, opts), do: opts
 
   defp maybe_merge_config_from_application(%{}, opts) do
-    base_url =
-      Application.get_env(:supabase_potion, :supabase_base_url) ||
-        raise MissingSupabaseConfig, :url
-
-    api_key =
-      Application.get_env(:supabase_potion, :supabase_api_key) ||
-        raise MissingSupabaseConfig, :key
+    base_url = Application.get_env(:supabase_potion, :supabase_base_url)
+    api_key = Application.get_env(:supabase_potion, :supabase_api_key)
 
     Map.put(opts, :conn, %{base_url: base_url, api_key: api_key})
+  end
+
+  defp errors_on_changeset(changeset) do
+    Ecto.Changeset.traverse_errors(changeset, fn {message, opts} ->
+      Regex.replace(~r"%{(\w+)}", message, fn _, key ->
+        opts |> Keyword.get(String.to_existing_atom(key), key) |> to_string()
+      end)
+    end)
   end
 
   defmacro __using__(which) when is_atom(which) do
