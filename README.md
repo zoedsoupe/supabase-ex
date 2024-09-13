@@ -62,12 +62,12 @@ A `Supabase.Client` holds general information about Supabase, that can be used t
 
 ## Configuration
 
-Ensure your Supabase configurations are set:
+Ensure your Supabase configurations are set in runtime.exs:
 
 ```elixir
 import Config
 
-config :supabase,
+config :supabase_potion,
   supabase_base_url: System.fetch_env!("SUPABASE_BASE_URL"),
   supabase_api_key: System.fetch_env!("SUPABASE_API_KEY"),
 ```
