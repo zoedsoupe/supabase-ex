@@ -40,6 +40,27 @@ def deps do
 end
 ```
 
+### General usage
+
+This library per si is the base foundation to user Supabase services from Elixir, so to integrate with specific services you need to add each client library you want to use.
+
+Available client services are:
+- [PostgREST](https://github.com/zoedsoupe/postgres-ex)
+- [Storage](https://github.com/zoedsoupe/storage-ex)
+- [Auth/GoTrue](https://github.com/zoedsoupe/gotrue-ex)
+
+So if you wanna use the Storage and Auth/GoTrue services, your `mix.exs` should look like that:
+
+```elixir
+def deps do
+  [
+    {:supabase_potion, "~> 0.4"}, # base SDK
+    {:supabase_storage, "~> 0.3"}, # storage integration
+    {:supabase_gotrue, "~> 0.3"}, # auth integration
+  ]
+end
+```
+
 ### Clients
 
 A `Supabase.Client` holds general information about Supabase, that can be used to intereact with any of the children integrations, for example: `Supabase.Storage` or `Supabase.UI`.
