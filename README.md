@@ -110,6 +110,31 @@ For more information on the available options, see the [Supabase.Client](https:/
 
 > There's also a bang version of `Supabase.init_client/3` that will raise an error if the client can't be created.
 
+You can also define a module that will centralize the client initialization:
+
+```elixir
+defmodule MyApp.Supabase.Client do
+  @behaviour Supabase.Client.Behaviour
+
+  @impl true
+  def init do
+    # your client initialization
+    # you should return {:ok, client} or {:error, reason}
+    # you probably want to use `Supabase.init_client/3` here
+    # but get the base_url and api_key from anywhere you want
+  end
+
+  @impl true
+  def get_client do
+    # your client retrieval
+    # you should return the client
+    # the management of the client state is up to you
+  end
+end
+```
+
+For self managed clients, check the [next section](#self-managed-clients).
+
 #### Self managed clients
 
 Self managed clients are clients that are created and managed by a separate process on your application. They are useful for long running applications that need to interact with the Supabase API.

@@ -52,7 +52,7 @@ defmodule Supabase do
     when is_binary(url) and is_binary(api_key) do
     opts
     |> Map.put(:conn, %{base_url: url, api_key: api_key})
-    |> Map.update(:conn, opts, &Map.merge(&1, opts[:conn]))
+    |> Map.update(:conn, opts, &Map.merge(&1, opts[:conn] || %{}))
     |> Client.parse()
   end
 

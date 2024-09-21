@@ -121,6 +121,8 @@ defmodule Supabase.Client do
 
       alias Supabase.MissingSupabaseConfig
 
+      @behaviour Supabase.Client.Behaviour
+
       @doc """
       Start an Agent process to manage the Supabase client instance.
 
@@ -201,9 +203,15 @@ defmodule Supabase.Client do
       end
 
       @doc """
+      This function is an alias for `start_link/1` with no arguments.
+      """
+      @impl Supabase.Client.Behaviour
+      def init, do: start_link([])
+
+      @doc """
       Retrieve the client instance from the Agent process, so you can use it to interact with the Supabase API.
       """
-      @spec get_client(pid | atom) :: {:ok, Supabase.Client.t} | {:error, :not_found}
+      @impl Supabase.Client.Behaviour
       def get_client(pid \\ __MODULE__) do
         case Agent.get(pid, & &1) do
           nil -> {:error, :not_found}
