@@ -19,12 +19,12 @@ defmodule Supabase.Client do
   To achieve this you can use the `Supabase.Client` module in your module:
 
       defmodule MyApp.Supabase.Client do
-        use Supabase.Client
+        use Supabase.Client, otp_app: :my_app
       end
 
   This will automatically start an Agent process to manage the connection options for you. But for that to work, you need to configure your defined Supabase client in your `config.exs`:
 
-      config :supabase_potion, MyApp.Supabase.Client,
+      config :my_app, MyApp.Supabase.Client,
         base_url: "https://<app-name>.supabase.co",
         api_key: "<supabase-api-key>",
         conn: %{access_token: "<supabase-access-token>"}, # optional
@@ -107,7 +107,7 @@ defmodule Supabase.Client do
           auth: Auth.params()
         }
 
-  defmacro __using__(_) do
+  defmacro __using__(otp_app: otp_app) do
     quote do
       use Agent
 
@@ -123,6 +123,8 @@ defmodule Supabase.Client do
 
       @behaviour Supabase.Client.Behaviour
 
+      @otp_app unquote(otp_app)
+
       @doc """
       Start an Agent process to manage the Supabase client instance.
 
@@ -131,12 +133,12 @@ defmodule Supabase.Client do
       First, define your client module and use the `Supabase.Client` module:
 
           defmodule MyApp.Supabase.Client do
-            use Supabase.Client
+            use Supabase.Client, otp_app: :my_app
           end
 
       Note that you need to configure it with your Supabase project details. You can do this by setting the `base_url` and `api_key` in your `config.exs` file:
 
-          config :supabase_potion, MyApp.Supabase.Client,
+          config :#{@otp_app}, MyApp.Supabase.Client,
             base_url: "https://<app-name>.supabase.co",
             api_key: "<supabase-api-key>",
             conn: %{access_token: "<supabase-access-token>"}, # optional
@@ -160,10 +162,10 @@ defmodule Supabase.Client do
       def start_link(opts \\ [])
 
       def start_link(opts) when is_list(opts) and opts == [] do
-        config = Application.get_env(:supabase_potion, __MODULE__)
+        config = Application.get_env(@otp_app, __MODULE__)
 
         if is_nil(config) do
-          raise MissingSupabaseConfig, key: :config, client: __MODULE__
+          raise MissingSupabaseConfig, key: :config, client: __MODULE__, otp_app: @otp_app
         end
 
         base_url = Keyword.get(config, :base_url)
@@ -172,11 +174,11 @@ defmodule Supabase.Client do
         params = Map.new(config)
 
         if is_nil(base_url) do
-          raise MissingSupabaseConfig, key: :url, client: __MODULE__
+          raise MissingSupabaseConfig, key: :url, client: __MODULE__, otp_app: @otp_app
         end
 
         if is_nil(api_key) do
-          raise MissingSupabaseConfig, key: :key, client: __MODULE__
+          raise MissingSupabaseConfig, key: :key, client: __MODULE__, otp_app: @otp_app
         end
 
         Agent.start_link(fn -> Supabase.init_client!(base_url, api_key, params) end, name: name)
@@ -187,11 +189,11 @@ defmodule Supabase.Client do
         api_key = Keyword.get(opts, :api_key)
 
         if is_nil(base_url) do
-          raise MissingSupabaseConfig, key: :url, client: __MODULE__
+          raise MissingSupabaseConfig, key: :url, client: __MODULE__, otp_app: @otp_app
         end
 
         if is_nil(api_key) do
-          raise MissingSupabaseConfig, key: :key, client: __MODULE__
+          raise MissingSupabaseConfig, key: :key, client: __MODULE__, otp_app: @otp_app
         end
 
         name = Keyword.get(opts, :name, __MODULE__)

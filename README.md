@@ -7,6 +7,21 @@ Where the magic starts!
 
 ## Getting Started
 
+### Examples
+
+This repository contains a few examples with sample apps to help you get started and showcase each usage of the client implementations:
+
+#### Gotrue/Auth examples
+
+- [Plug based auth](https://github.com/zoedsoupe/supabase-ex/tree/main/examples/auth/plug)
+- [Phoenix LiveView based auth](https://github.com/zoedsoupe/supabase-ex/tree/main/examples/auth/phoenix_live_view)
+- [User management](https://github.com/zoedsoupe/supabase-ex/tree/main/examples/auth/user_management)
+
+#### Storage examples
+
+- [Plug based upload](https://github.com/zoedsoupe/supabase-ex/tree/main/examples/storage/plug)
+- [Phoenix LiveView upload](https://github.com/zoedsoupe/supabase-ex/tree/main/examples/storage/phoenix_live_view)
+
 ### Installation
 
 To install the base SDK:
@@ -15,27 +30,6 @@ To install the base SDK:
 def deps do
   [
     {:supabase_potion, "~> 0.5"}
-  ]
-end
-```
-
-### General installation
-
-This library per si is the base foundation to user Supabase services from Elixir, so to integrate with specific services you need to add each client library you want to use.
-
-Available client services are:
-- [PostgREST](https://github.com/zoedsoupe/postgres-ex)
-- [Storage](https://github.com/zoedsoupe/storage-ex)
-- [Auth/GoTrue](https://github.com/zoedsoupe/gotrue-ex)
-
-So if you wanna use the Storage and Auth/GoTrue services, your `mix.exs` should look like that:
-
-```elixir
-def deps do
-  [
-    {:supabase_potion, "~> 0.5"}, # base SDK
-    {:supabase_storage, "~> 0.3"}, # storage integration
-    {:supabase_gotrue, "~> 0.3"}, # auth integration
   ]
 end
 ```
@@ -54,7 +48,7 @@ So if you wanna use the Storage and Auth/GoTrue services, your `mix.exs` should 
 ```elixir
 def deps do
   [
-    {:supabase_potion, "~> 0.4"}, # base SDK
+    {:supabase_potion, "~> 0.5"}, # base SDK
     {:supabase_storage, "~> 0.3"}, # storage integration
     {:supabase_gotrue, "~> 0.3"}, # auth integration
   ]
@@ -149,7 +143,7 @@ So, to define a self managed client, you need to define a module that will hold 
 
 ```elixir
 defmodule MyApp.Supabase.Client do
-  use Supabase.Client
+  use Supabase.Client, otp_app: :my_app
 end
 ```
 
@@ -158,7 +152,7 @@ For that to work, you also need to configure the client in your `config.exs`:
 ```elixir
 import Config
 
-config :supabase_potion, MyApp.Supabase.Client,
+config :my_app, MyApp.Supabase.Client,
   base_url: "https://<supabase-url>", # required
   api_key: "<supabase-api-key>", # required
   conn: %{access_token: "<supabase-token>"}, # optional
