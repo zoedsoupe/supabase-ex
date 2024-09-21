@@ -2,59 +2,11 @@ defmodule Supabase do
   @moduledoc """
   The main entrypoint for the Supabase SDK library.
 
-  ## Installation
-
-  The package can be installed by adding `supabase_potion` to your list of dependencies in `mix.exs`:
-
-      def deps do
-        [
-          {:supabase_potion, "~> 0.3"}
-        ]
-      end
-
-  ## Usage
-
-  After installing `:supabase_potion`, you can easily and dynamically manage different `Supabase.Client`!
-
-  ### Config
-
-  The library offers a bunch of config options that can be used to control management of clients and other options.
-
-  - `manage_clients` - whether to manage clients automatically, defaults to `true`
-
-  You can set up the library on your `config.exs`:
-
-      config :supabase, manage_clients: false
-
-  ### Clients
-
-  A `Supabase.Client`  holds general information about Supabase, that can be used to intereact with any of the children integrations, for example: `Supabase.Storage` or `Supabase.UI`.
-
-  `Supabase.Client` is defined as:
-
-  - `:conn` - connection information, the only required option as it is vital to the `Supabase.Client`.
-    - `:base_url` - The base url of the Supabase API, it is usually in the form `https://<app-name>.supabase.co`.
-    - `:api_key` - The API key used to authenticate requests to the Supabase API.
-    - `:access_token` - Token with specific permissions to access the Supabase API, it is usually the same as the API key.
-  - `:db` - default database options
-    - `:schema` - default schema to use, defaults to `"public"`
-  - `:global` - global options config
-    - `:headers` - additional headers to use on each request
-  - `:auth` - authentication options
-    - `:auto_refresh_token` - automatically refresh the token when it expires, defaults to `true`
-    - `:debug` - enable debug mode, defaults to `false`
-    - `:detect_session_in_url` - detect session in URL, defaults to `true`
-    - `:flow_type` - authentication flow type, defaults to `"web"`
-    - `:persist_session` - persist session, defaults to `true`
-    - `:storage` - storage type
-    - `:storage_key` - storage key
-
-
   ## Starting a Client
 
-  You then can start a Client calling `Supabase.init_client/1`:
+  You then can start a Client calling `Supabase.init_client/3`:
 
-      iex> Supabase.init_client(%{db: %{schema: "public"}})
+      iex> Supabase.init_client("base_url", "api_key", %{db: %{schema: "public"}})
       {:ok, %Supabase.Client{}}
 
   ## Acknowledgements
@@ -62,11 +14,11 @@ defmodule Supabase do
   This package represents the base SDK for Supabase. That means
   that it not includes all of the functionality of the Supabase client integrations, so you need to install each feature separetely, as:
 
-  - [auth](https://github.com/zoedsoupe/gotrue-ex)
-  - [storage](https://github.com/zoedsoupe/storage-ex)
-  - [postgrest](https://github.com/zoedsoupe/postgrest-ex)
-  - `realtime` - TODO
-  - `ui` - TODO
+  - [Auth/GoTrue](https://github.com/zoedsoupe/gotrue-ex)
+  - [Storage](https://github.com/zoedsoupe/storage-ex)
+  - [PostgREST](https://github.com/zoedsoupe/postgrest-ex)
+  - `Realtime` - TODO
+  - `UI` - TODO
 
   ### Supabase Storage
 
@@ -80,7 +32,7 @@ defmodule Supabase do
 
   Supabase Realtime provides a realtime websocket API powered by PostgreSQL notifications. It allows you to listen to changes in your database, and instantly receive updates as soon as they happen.
 
-  ### Supabase Auth
+  ### Supabase Auth/GoTrue
 
   Supabase Auth is a feature-complete user authentication system. It provides email & password sign in, email verification, password recovery, session management, and more, out of the box.
 
@@ -95,44 +47,35 @@ defmodule Supabase do
 
   @typep changeset :: Ecto.Changeset.t()
 
-  @spec init_client(Client.params() | %{}) :: {:ok, Client.t()} | {:error, changeset}
-  def init_client(opts \\ %{}) do
+  @spec init_client(String.t(), String.t(), Client.params() | %{}) :: {:ok, Client.t()} | {:error, changeset}
+  def init_client(url, api_key, opts \\ %{})
+    when is_binary(url) and is_binary(api_key) do
     opts
-    |> Map.get(:conn, %{})
-    |> maybe_merge_config_from_application(opts)
+    |> Map.put(:conn, %{base_url: url, api_key: api_key})
+    |> Map.update(:conn, opts, &Map.merge(&1, opts[:conn]))
     |> Client.parse()
   end
 
-  def init_client!(%{} = opts \\ %{}) do
-    conn = Map.get(opts, :conn, %{})
-    opts = maybe_merge_config_from_application(conn, opts)
-
-    case init_client(opts) do
+  @spec init_client!(String.t, String.t, Client.params | %{}) :: Client.t() | no_return
+  def init_client!(url, api_key, %{} = opts \\ %{})
+    when is_binary(url) and is_binary(api_key) do
+    case init_client(url, api_key, opts) do
       {:ok, client} ->
         client
 
       {:error, changeset} ->
         errors = errors_on_changeset(changeset)
 
-        if "can't be blank" in get_in(errors, [:conn, :api_key]) do
-          raise MissingSupabaseConfig, :key
+        if "can't be blank" in (get_in(errors, [:conn, :api_key]) || []) do
+          raise MissingSupabaseConfig, key: :key, client: nil
         end
 
-        if "can't be blank" in get_in(errors, [:conn, :base_url]) do
-          raise MissingSupabaseConfig, :url
+        if "can't be blank" in (get_in(errors, [:conn, :base_url]) || []) do
+          raise MissingSupabaseConfig, key: :url, client: nil
         end
 
         raise Ecto.InvalidChangesetError, changeset: changeset, action: :init
     end
-  end
-
-  defp maybe_merge_config_from_application(%{base_url: _, api_key: _}, opts), do: opts
-
-  defp maybe_merge_config_from_application(%{}, opts) do
-    base_url = Application.get_env(:supabase_potion, :supabase_base_url)
-    api_key = Application.get_env(:supabase_potion, :supabase_api_key)
-
-    Map.put(opts, :conn, %{base_url: base_url, api_key: api_key})
   end
 
   defp errors_on_changeset(changeset) do

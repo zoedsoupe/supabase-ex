@@ -2,6 +2,9 @@
 
 Where the magic starts!
 
+> [!WARNING]
+> This project is still in high development, expect breaking changes.
+
 ## Getting Started
 
 ### Installation
@@ -11,7 +14,28 @@ To install the base SDK:
 ```elixir
 def deps do
   [
-    {:supabase_potion, "~> 0.4"}
+    {:supabase_potion, "~> 0.5"}
+  ]
+end
+```
+
+### General installation
+
+This library per si is the base foundation to user Supabase services from Elixir, so to integrate with specific services you need to add each client library you want to use.
+
+Available client services are:
+- [PostgREST](https://github.com/zoedsoupe/postgres-ex)
+- [Storage](https://github.com/zoedsoupe/storage-ex)
+- [Auth/GoTrue](https://github.com/zoedsoupe/gotrue-ex)
+
+So if you wanna use the Storage and Auth/GoTrue services, your `mix.exs` should look like that:
+
+```elixir
+def deps do
+  [
+    {:supabase_potion, "~> 0.5"}, # base SDK
+    {:supabase_storage, "~> 0.3"}, # storage integration
+    {:supabase_gotrue, "~> 0.3"}, # auth integration
   ]
 end
 ```
@@ -39,33 +63,90 @@ A `Supabase.Client` holds general information about Supabase, that can be used t
     - `:storage` - storage type
     - `:storage_key` - storage key
 
-## Configuration
+### Usage
 
-Ensure your Supabase configurations are set:
+There are two ways to create a `Supabase.Client`:
+1. one off clients
+2. self managed clients
+
+#### One off clients
+
+One off clients are clients that are created and managed by your application. They are useful for quick interactions with the Supabase API.
+
+```elixir
+iex> Supabase.init_client("https://<supabase-url>", "<supabase-api-key>")
+iex> {:ok, %Supabase.Client{}}
+```
+
+Any additional config can be passed as the third argument:
+
+```elixir
+iex> Supabase.init_client("https://<supabase-url>", "<supabase-api-key>", %{db: %{schema: "another"}}})
+iex> {:ok, %Supabase.Client{}}
+```
+
+For more information on the available options, see the [Supabase.Client](https://hexdocs.pm/supabase_potion/Supabase.Client.html) module documentation.
+
+> There's also a bang version of `Supabase.init_client/3` that will raise an error if the client can't be created.
+
+#### Self managed clients
+
+Self managed clients are clients that are created and managed by a separate process on your application. They are useful for long running applications that need to interact with the Supabase API.
+
+If you don't have experience with processes or is a Elixir begginner, you should take a deep look into the Elixir official getting started section about processes, concurrency and distribution before to proceed.
+- [Processes](https://hexdocs.pm/elixir/processes.html)
+- [Agent getting started](https://hexdocs.pm/elixir/agents.html)
+- [GenServer getting started](https://hexdocs.pm/elixir/genservers.html)
+- [Supervison trees getting started](https://hexdocs.pm/elixir/supervisor-and-application.html)
+
+So, to define a self managed client, you need to define a module that will hold the client state and the client process.
+
+```elixir
+defmodule MyApp.Supabase.Client do
+  use Supabase.Client
+end
+```
+
+For that to work, you also need to configure the client in your `config.exs`:
 
 ```elixir
 import Config
 
-config :supabase,
-  supabase_base_url: System.fetch_env!("SUPABASE_BASE_URL"),
-  supabase_api_key: System.fetch_env!("SUPABASE_API_KEY"),
+config :supabase_potion, MyApp.Supabase.Client,
+  base_url: "https://<supabase-url>", # required
+  api_key: "<supabase-api-key>", # required
+  conn: %{access_token: "<supabase-token>"}, # optional
+  db: %{schema: "another"} # additional options
 ```
 
-- `supabase_base_url`: The base URL of your Supabase project! More information on how to find it can be seen on the [next section](#how-to-find-my-supabase-base-url?)
-- `supabase_api_key`: The secret of your Supabase project! More information on how to find it can be seen on the [next section](#how-to-find-my-supabase-api-key?)
-
-Make sure to set the environment variables `SUPABASE_BASE_URL` and `SUPABASE_API_KEY`.
-
-## Starting a Client
-
-You can start a client using the `Supabase.init_client/1` or `Supabase.init_client!/1` function.
+Then, you can start the client process in your application supervision tree:
 
 ```elixir
-iex> Supabase.init_client!(%{conn: %{base_url: "<supa-url>", api_key: "<supa-key>"}})
-{:ok, %Supabase.Client{}}
+defmodule MyApp.Application do
+  use Application
+
+  def start(_type, _args) do
+    children = [
+      MyApp.Supabase.Client
+    ]
+
+    opts = [strategy: :one_for_one, name: MyApp.Supervisor]
+    Supervisor.start_link(children, opts)
+  end
+end
 ```
 
-> Note that if you already set up supabase potion options on your application config, you can safely use `Supabase.init_client/0` or `Supabase.init_client!/0`
+Now you can interact with the client process:
+
+```elixir
+iex> {:ok, %Supabase.Client{} = client} = MyApp.Supabase.Client.get_client()
+iex> Supabase.GoTrue.sign_in_with_password(client, email: "", password: "")
+```
+
+For more examples on how to use the client, check clients implementations docs:
+- [Supabase.GoTrue](https://hexdocs.pm/supabase_go_true)
+- [Supabase.Storage](https://hexdocs.pm/supabase_storage)
+- [Supabase.PostgREST](https://hexdocs.pm/supabase_postgrest)
 
 ### How to find my Supabase base URL?
 

@@ -3,6 +3,54 @@ defmodule Supabase.Client do
   A client for interacting with Supabase. This module is responsible for
   managing the connection options for your Supabase project.
 
+  ## Usage
+
+  Generally, you can start a client by calling `Supabase.init_client/3`:
+
+      iex> base_url = "https://<app-name>.supabase.io"
+      iex> api_key = "<supabase-api-key>"
+      iex> Supabase.init_client(base_url, api_key, %{})
+      {:ok, %Supabase.Client{}}
+
+  > That way of initialisation is useful when you want to manage the connection options yourself or create one off clients.
+
+  However, starting a client directly means you have to manage the connection options yourself. To make it easier, you can use the `Supabase.Client` module to manage the connection options for you.
+
+  To achieve this you can use the `Supabase.Client` module in your module:
+
+      defmodule MyApp.Supabase.Client do
+        use Supabase.Client
+      end
+
+  This will automatically start an Agent process to manage the connection options for you. But for that to work, you need to configure your defined Supabase client in your `config.exs`:
+
+      config :supabase_potion, MyApp.Supabase.Client,
+        base_url: "https://<app-name>.supabase.co",
+        api_key: "<supabase-api-key>",
+        conn: %{access_token: "<supabase-access-token>"}, # optional
+        db: %{schema: "another"}, # default to public
+        auth: %{debug: true} # optional
+
+  Another alternative would be to configure your Supabase Client at runtime, while starting your application:
+
+      defmodule MyApp.Application do
+        use Application
+
+        def start(_type, _args) do
+          children = [
+            {MyApp.Supabase.Client, [
+              base_url: "https://<app-name>.supabase.co",
+              api_key: "<supabase-api-key>"
+            ]}
+          ]
+
+          opts = [strategy: :one_for_one, name: MyApp.Supabase.Client.Supervisor]
+          Supervisor.start_link(children, opts)
+        end
+      end
+
+  For more information on how to configure your Supabase Client with additional options, please refer to the [Supabase official documentation](https://supabase.com/docs/reference/javascript/initializing)
+
   ## Examples
 
       %Supabase.Client{
@@ -58,6 +106,112 @@ defmodule Supabase.Client do
           global: Global.params(),
           auth: Auth.params()
         }
+
+  defmacro __using__(_) do
+    quote do
+      use Agent
+
+      import Supabase.Client, only: [
+        update_access_token: 2,
+        retrieve_connection: 1,
+        retrieve_base_url: 1,
+        retrieve_auth_url: 2,
+        retrieve_storage_url: 2
+      ]
+
+      alias Supabase.MissingSupabaseConfig
+
+      @doc """
+      Start an Agent process to manage the Supabase client instance.
+
+      ## Usage
+
+      First, define your client module and use the `Supabase.Client` module:
+
+          defmodule MyApp.Supabase.Client do
+            use Supabase.Client
+          end
+
+      Note that you need to configure it with your Supabase project details. You can do this by setting the `base_url` and `api_key` in your `config.exs` file:
+
+          config :supabase_potion, MyApp.Supabase.Client,
+            base_url: "https://<app-name>.supabase.co",
+            api_key: "<supabase-api-key>",
+            conn: %{access_token: "<supabase-access-token>"}, # optional
+            db: %{schema: "another"}, # default to public
+            auth: %{debug: true} # optional
+
+      Then, on your `application.ex` file, you can start the agent process by adding your defined client into the Supervision tree of your project:
+
+          def start(_type, _args) do
+            children = [
+              MyApp.Supabase.Client
+            ]
+
+            Supervisor.init(children, strategy: :one_for_one)
+          end
+
+      For alternatives on how to start and define your Supabase client instance, please refer to the [Supabase.Client module documentation](https://hexdocs.pm/supabase_potion/Supabase.Client.html).
+
+      For more information on how to start an Agent process, please refer to the [Agent module documentation](https://hexdocs.pm/elixir/Agent.html).
+      """
+      def start_link(opts \\ [])
+
+      def start_link(opts) when is_list(opts) and opts == [] do
+        config = Application.get_env(:supabase_potion, __MODULE__)
+
+        if is_nil(config) do
+          raise MissingSupabaseConfig, key: :config, client: __MODULE__
+        end
+
+        base_url = Keyword.get(config, :base_url)
+        api_key = Keyword.get(config, :api_key)
+        name = Keyword.get(config, :name, __MODULE__)
+        params = Map.new(config)
+
+        if is_nil(base_url) do
+          raise MissingSupabaseConfig, key: :url, client: __MODULE__
+        end
+
+        if is_nil(api_key) do
+          raise MissingSupabaseConfig, key: :key, client: __MODULE__
+        end
+
+        Agent.start_link(fn -> Supabase.init_client!(base_url, api_key, params) end, name: name)
+      end
+
+      def start_link(opts) when is_list(opts) do
+        base_url = Keyword.get(opts, :base_url)
+        api_key = Keyword.get(opts, :api_key)
+
+        if is_nil(base_url) do
+          raise MissingSupabaseConfig, key: :url, client: __MODULE__
+        end
+
+        if is_nil(api_key) do
+          raise MissingSupabaseConfig, key: :key, client: __MODULE__
+        end
+
+        name = Keyword.get(opts, :name, __MODULE__)
+        params = Map.new(opts)
+
+        Agent.start_link(fn ->
+          Supabase.init_client!(base_url, api_key, params)
+        end, name: name)
+      end
+
+      @doc """
+      Retrieve the client instance from the Agent process, so you can use it to interact with the Supabase API.
+      """
+      @spec get_client(pid | atom) :: {:ok, Supabase.Client.t} | {:error, :not_found}
+      def get_client(pid \\ __MODULE__) do
+        case Agent.get(pid, & &1) do
+          nil -> {:error, :not_found}
+          client -> {:ok, client}
+        end
+      end
+    end
+  end
 
   @primary_key false
   embedded_schema do
